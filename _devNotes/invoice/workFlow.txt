@@ -1,0 +1,13 @@
+https://upgrade.achadirect.com/rest/V1/orders/48349
+
+download files from magento
+    "customer_id": 37509,
+    "created_at": "2024-02-15 22:10:54",
+    "order_id": 48348,
+        "sku": "BNG-F10000",
+        "qty_invoiced": 10,
+        "product_id": 14931,
+        "price": 0.25,
+        "base_row_invoiced": 2.5,
+
+
