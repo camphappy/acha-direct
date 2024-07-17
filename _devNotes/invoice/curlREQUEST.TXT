@@ -1,0 +1,4 @@
+curl --location 'https://upgrade.achadirect.com/rest/V1/orders/48348' \
+--header 'Content-Type: application/json' \
+--header 'Authorization: Bearer viqd38pbwaka6m9c57ojg39dvwh00giz' \
+--header 'Cookie: PHPSESSID=kf6q6h7p59pqg7adqegpoh0f5n; visid_incap_56271=Oio1RnllT5+pxAwDjGNiWovrhGYAAAAAQUIPAAAAAACGTi3gguM3tSoObOOOvv9z; PHPSESSID=kf6q6h7p59pqg7adqegpoh0f5n'
