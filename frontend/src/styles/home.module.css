@@ -1,0 +1,70 @@
+.mainWindow {
+    display: flex;
+    height: 100vh; /* Full height of viewport */
+    background-color: rgb(246, 238, 228);
+}
+
+.rightWindow {
+    flex: 1; /* Equal width for both windows */
+    border: 1px solid #ccc; /* Example border */
+}
+
+.leftWindow {
+    overflow-y: auto; /* Enable vertical scrollbar if needed */
+    padding: 10px; /* Example padding */
+}
+
+.detailWindow {
+    overflow-y: auto; /* Enable vertical scrollbar if needed */
+    padding: 10px; /* Example padding */
+}
+
+
+/* Add any additional styling as needed */
+/* Default styles for larger screens */
+.mainScreen {
+    display: grid;
+    grid-template-areas: 
+        'header header header'
+        'leftSidebar content rightSidebar'
+        'footer footer footer';
+    grid-template-columns: 1fr 3fr 1fr;
+    grid-template-rows: auto 1fr auto;
+    background-color: rgb(159, 164, 236);
+    height: 100vh;
+  }
+  
+  .header {
+    grid-area: header;
+  }
+  
+  .leftSidebar {
+    grid-area: leftSidebar;
+  }
+  
+  .content {
+    grid-area: content;
+  }
+  
+  .rightSidebar {
+    grid-area: rightSidebar;
+  }
+  
+  .footer {
+    grid-area: footer;
+  }
+  
+  /* Responsive styles for smaller screens */
+  @media (max-width: 768px) {
+    .mainScreen {
+        grid-template-areas: 
+            'header'
+            'content'
+            'leftSidebar'
+            'rightSidebar'
+            'footer';
+        grid-template-columns: 1fr;
+        grid-template-rows: auto 1fr auto auto auto;
+    }
+  }
+  

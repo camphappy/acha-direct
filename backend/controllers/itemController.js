@@ -1,3 +1,4 @@
+// ~/MernStart/acha-direct/backend/controllers/itemController.js
 const Item = require('../models/itemModel')
 const mongoose = require('mongoose')
 const fs = require('fs');
@@ -45,19 +46,20 @@ const getItem = async (req, res) => {
         const item = items[0]; // Get the first item from the array
  
         // Construct the path to the file in frontend/assets/inventoryPics
-        filePath = path.join(__dirname, '../..', 'frontend', 'public', 'assets', 'fullInventoryPics',`${item.masterCode}.jpg`);
+        //filePath = path.join(__dirname, '../', 'public', 'assets', 'fullInventoryPics',`${item.masterCode}.jpg`);
 
-        const fileUrl = `/assets/fullInventoryPics/${item.masterCode}.jpg`;
+        const fileUrl = path.join(__dirname,'../','public','assets','fullInventoryPics',`${item.masterCode}.jpg`);
 
         // Check if the file exists
-        fs.access(filePath, fs.constants.F_OK, (err) => {
+        fs.access(fileUrl, fs.constants.F_OK, (err) => {
             if (err) {
                 // File does not exist
-                return res.status(200).json({
+                return res.status(404).json({
+                    error: 'Image not found',
                     item,
                     imageExists: false,
                     fileLocation: fileUrl, // Include the string value of filePath
-                    errorMessage: 'Image directory is bad or file not found',
+                    errorMessage: 'Image directory is bad or file not found'
                 });
             } else {
                 // File exists

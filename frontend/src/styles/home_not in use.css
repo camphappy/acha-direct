@@ -1,0 +1,40 @@
+.home {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+}
+
+.headerWindow, .listWindow {
+    width: 80%;
+}
+
+.header, .item {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+}
+
+.header {
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.item {
+    margin-bottom: 10px;
+}
+
+.header div, .item div {
+    padding: 10px;
+    border: 1px solid black;
+    text-align: left;
+}
+
+.item a {
+    color: blue;
+    text-decoration: none;
+}
+
+.item a:hover {
+    text-decoration: underline;
+}

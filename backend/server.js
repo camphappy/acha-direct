@@ -1,3 +1,4 @@
+//acha-direct/backend
 //to allow the use of the .env environment file
 require ('dotenv').config()
 
@@ -20,7 +21,8 @@ app.use(express.json())
 // included in the request and sends it to the server
 
 // Middleware to serve static files
-app.use(express.static(path.join(__dirname, '../..', 'frontend', 'public')));
+app.use(express.static(path.join(__dirname, '../..', 'backend', 'public')));
+//pp.use(express.static('public'));
 
 // Logging middleware for requests
 app.use((req, res, next) => {

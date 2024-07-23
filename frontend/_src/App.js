@@ -1,7 +1,7 @@
 import {BrowserRouter, Routes, Route } from 'react-router-dom'
 
 //pages and components
-import Home from './pages/Home';
+import itemsMain from './pages/itemsMain';
 import Navbar from'./components/Navbar';
 
 /*
@@ -24,7 +24,7 @@ function App() {
             <p>Utility Box Content. This is a afsjkkjhfsjklsdaklfhfhfhdfskjfd  hasdjl f afhjlf jhjl sdlkj fdhj  fajh aflkjf fds sdf jk fdsj fdhfjaf la fdj hfshjf dslks djfsda fsdhjla kjlhafhfsa fhjsasldkjhnbfd a hfdjhklasfdkjlnbhsdafdkjfswdkjf dhlkaf dskljab  f sdhjklafdskjbnf </p>
             </div>
           <Routes>
-            <Route path="/" element={<Home />} />
+            <Route path="/" element={<itemsMain />} />
             {/*<Route path="item-details/:sku" element = {<ItemDetails />} />*/}
           </Routes>
           

@@ -1,0 +1,95 @@
+
+html, body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  height: 110%;
+  margin: 2;
+  display: flex;
+  align-items: top;
+  justify-content: space-between; 
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Poppins',
+    monospace;
+}
+
+
+header a {
+  color:#fa6aca;
+}
+
+.container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: flex-start;
+  align-items: Top;
+  padding: 3 0; /* 1/8th margin for top and bottom */
+}
+
+.output-window {
+  width: 100%; /* Width of the output window */
+  height: 70%; /* Height of the output window */
+  margin-left: 0%; /* 1/8th margin from the left */
+  /* background-color: #f3f3f8; /* Light gray background */
+  border: 1px solid #ccc; /* Light border */
+  padding: 10px;
+  box-shadow: 0 0 10px rgba(24, 33, 37, 0.354); /* Slight shadow for better visibility */
+  overflow: hidden; /* Scrollable if content exceeds the window size */
+}
+
+pre {
+  margin: 0;
+  font-family: monospace;
+}
+
+.home .listWindow {
+  border: 2px solid rgba(12, 87, 122, 0.354);
+  width: 60.5%; /* 5/8ths of the width */
+  box-sizing: border-box;
+  padding: 2%;
+  overflow-y: auto; /* Enable scrolling if the content overflows */
+}
+
+.home {
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+}
+
+
+.listwindow {
+  width: 80%;
+  display: grid;
+  height: calc(100vh - 40px);
+  grid-template-columns: repeat(4, 40%);
+  gap: 5px;
+}
+
+.header {
+  font-weight: bold;
+  display: contents; /* Maintain grid layout for header */
+}
+
+.item {
+  display: contents; /* Maintain grid layout for items */
+}
+
+.item div, .header div {
+  padding: 10px;
+  border: 1px solid black;
+  text-align: left;
+}
+
+.item a {
+  color: rgb(0, 0, 255);
+  text-decoration: none;
+}
+
+.item a:hover {
+  text-decoration: underline;
+}

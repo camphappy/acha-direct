@@ -4,7 +4,7 @@ import ItemList from '../components/ItemList';
 import ImageDisplay from '../components/ImageDisplay';
 import { fetchItems, fetchItemDetails } from '../utils/api';
 
-const ItemsHome = () => {
+const itemsMain = () => {
     const [items, setItems] = useState([]);
     const [selectedItem, setSelectedItem] = useState(null);
     const [currentMasterCode, setCurrentMasterCode] = useState(null);
@@ -72,4 +72,4 @@ const ItemsHome = () => {
     );
 };
 
-export default ItemsHome;
+export default itemsMain;
