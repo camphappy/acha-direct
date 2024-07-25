@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useCallback} from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import debounce from 'lodash.debounce';
 
 
@@ -15,7 +15,7 @@ const Home = () => {
     const magnifierRef = useRef(null);
     const containerRef = useRef(null);
    
-    const fetchItems = useCallback(async (page = 1, limit = itemsPerPage) => {
+    const fetchItems = async (page = 1, limit = itemsPerPage) => {
         try {
             const response = await fetch(`/acha-kvell/item?page=${page}&limit=${limit}`);
             if (!response.ok) {
@@ -27,13 +27,14 @@ const Home = () => {
             setTotalPages(thisJson.totalPages);
             if (thisJson.items.length > 0) {
                 handleRowClick(this.Json.items[0].masterCode);
+                {/*setSelectedItem(thisJson.items[0]); // Set the first item as the default selected item*/}
                 setCurrentMasterCode(thisJson.items[0].masterCode);
                 setSku(thisJson.items[0].sku);
             }
         } catch (error) {
             console.error('Error fetching items:', error);
         }    
-    }, [itemsPerPage]);
+    };
 
     const handleRowClick = async (masterCode) => {
         try {
@@ -76,7 +77,7 @@ const Home = () => {
 
     useEffect(() => {
         fetchItems(currentPage);
-    }, [currentPage, fetchItems]);
+    }, [currentPage]);
 
     const handleItemsPerPageChange = (e) => {
         const newItemsPerPage = parseInt(e.target.value, 10);
@@ -95,10 +96,10 @@ const Home = () => {
 
         if (x > 0 && y > 0 && x < rect.width && y < rect.height) {
             magnifier.style.display = 'block';
-            magnifier.style.left = `${x - magnifier.offsetWidth / 3}px`;
-            magnifier.style.top = `${y - magnifier.offsetHeight / 3}px`;
+            magnifier.style.left = `${x - magnifier.offsetWidth / 2}px`;
+            magnifier.style.top = `${y - magnifier.offsetHeight / 2}px`;
             magnifier.style.backgroundImage = `url(${img.src})`;
-            magnifier.style.backgroundPosition = `-${x * 1.05 - magnifier.offsetWidth / 2}px -${y * 1.05 - magnifier.offsetHeight / 2}px`;
+            magnifier.style.backgroundPosition = `-${x * 1.5 - magnifier.offsetWidth / 2}px -${y * 1.5 - magnifier.offsetHeight / 2}px`;
         } else {
             magnifier.style.display = 'none';
         }
@@ -154,7 +155,8 @@ const Home = () => {
                             <div>{item.oldCode}</div>
                             <div>{item.sku}</div>
                             <div classname={"infoButton"}>
-                                <button onClick={() => handleRowClick(item.masterCode)}>
+                                <button onClick={() => 
+                                    handleRowClick(item.sku)}>
                                      Click for info
                                 </button>
                             </div>
@@ -164,14 +166,13 @@ const Home = () => {
                   
             </div>
             
-            {imageExists && (
                 <div className="contentRight">
                     {/* Display the selected item JSON */}
                     {selectedItem && <pre>{JSON.stringify(selectedItem, null, 2)}</pre>}
                         <div>
                             {currentMasterCode && `Current Master Code: ${currentFileLocation}, ${currentMasterCode}`}
                         </div>
-                <div>
+                    <div>
                             {imageExists ? (
                                 <div
                                 className="container"
@@ -180,18 +181,16 @@ const Home = () => {
                                 ref={containerRef}>
                                 <img
                                         src={(currentFileLocation)}
-                                        alt={`Master Code not loaded ${currentFileLocation}`}
+                                        alt={`Master Code Image not loaded {currentFileLocation}`}
                                     />
                                     <div className="magnifier" ref={magnifierRef}></div>
-                                    {`Current Master Code: ${currentFileLocation}, ${currentMasterCode}`}
                                 </div>
                             ) : (
-
-                                'Image not found'
+                               <div>Image not found $item.masterCode</div>
                             )}
+                    </div>
                 </div>
-                </div>
-            )}
+            
         </div>
     );
 };

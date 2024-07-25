@@ -21,7 +21,7 @@ app.use(express.json())
 // included in the request and sends it to the server
 
 // Middleware to serve static files
-app.use(express.static(path.join(__dirname, '../..', 'backend', 'public')));
+app.use('/assets',express.static(path.join(__dirname, 'public/assets')));
 //pp.use(express.static('public'));
 
 // Logging middleware for requests

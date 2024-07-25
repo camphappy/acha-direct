@@ -1,0 +1,6 @@
+{
+    "watch": ["src", "backend"],
+    "ignore": ["node_modules", "public/assets"],
+    "ext": "js,json"
+  }
+  
