@@ -77,6 +77,7 @@ const getItem = async (req, res) => {
 };
 
 //create a new item
+const appId ="itemController001" 
 const createItem = async (req, res) => {
     const {sku, masterCode, oldCode} = req.body
     //add doc to db    

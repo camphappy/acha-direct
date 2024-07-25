@@ -84,7 +84,9 @@
 .headerScreenTitle {
 grid-area: header;
   display: flex;
-  color: #ecece4; 
+  font-family: Arial, sans-serif;
+  font-size: 20px;
+  color: #ffffff; 
   align-items: center;
   justify-content: right;
   padding: 5px;
@@ -121,7 +123,7 @@ grid-area: header;
 }
 
 .menuField {
-  font-family: sans-serif, Helvetica, sans-serif;
+  font-family: sans-serif, Helvetica;
   display: flex;
   justify-content: space-around;
   padding: 10px;

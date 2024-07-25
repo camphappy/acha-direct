@@ -1,4 +1,4 @@
-//MernStart/backend
+//acha-direct/backend
 //to allow the use of the .env environment file
 require ('dotenv').config()
 
@@ -8,8 +8,6 @@ const path = require('path');
 
 
 //contains all the routes
-//const poRoutes = require('./routes/po')
-//const poModel = require('./models/poModel')
 const itemRoutes = require('./routes/items')
 const itemModel = require('./models/itemModel')
 
@@ -24,8 +22,9 @@ app.use(express.json())
 
 // Middleware to serve static files
 app.use('/assets',express.static(path.join(__dirname, 'public/assets')));
-//app.use(express.static(path.join(__dirname, '../..', 'frontend', 'public')));
+//pp.use(express.static('public'));
 
+// Logging middleware for requests
 app.use((req, res, next) => {
     console.log(req.path, req.method)
         next()

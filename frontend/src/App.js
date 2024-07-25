@@ -1,8 +1,10 @@
 import {BrowserRouter, Routes, Route } from 'react-router-dom'
 
 //pages and components
-import Home from './pages/Home';
-import Navbar from'./components/Navbar';
+import Navbar from './components/Navbar';
+import Sidebar from './components/lSidebar';
+import Home from './pages/item/home';
+
 
 /*
 import Orders from'./components/Orders'
@@ -20,9 +22,7 @@ function App() {
     <div className="mainScreen">
       <BrowserRouter>
           <Navbar />
-          <div className="leftSidebar">
-            <p>Utility Box Content. This is a afsjkkjhfsjklsdaklfhfhfhdfskjfd  hasdjl f afhjlf jhjl sdlkj fdhj  fajh aflkjf fds sdf jk fdsj fdhfjaf la fdj hfshjf dslks djfsda fsdhjla kjlhafhfsa fhjsasldkjhnbfd a hfdjhklasfdkjlnbhsdafdkjfswdkjf dhlkaf dskljab  f sdhjklafdskjbnf </p>
-            </div>
+          <Sidebar />
           <Routes>
             <Route path="/" element={<Home />} />
             {/*<Route path="item-details/:sku" element = {<ItemDetails />} />*/}

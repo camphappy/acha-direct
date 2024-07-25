@@ -1,4 +1,4 @@
-//import { Link } from 'react-router-dom';
+import navHeaderText from './src/components//navbarConfig.json';
 
 const Navbar = () => {
     return (
@@ -10,7 +10,7 @@ const Navbar = () => {
                 />
                 
                 <div className = "headerScreenTitle">   
-                        <h1>Inventory Management</h1>
+                        <h1>navHeaderText.itemNavText</h1>
                 </div>
         </header>
         
