@@ -1,4 +1,5 @@
-import React, { useEffect, useState, useRef } from 'react';
+//Includes page listing.
+import React, { useEffect, useState, useRef, useCallback} from 'react';
 import debounce from 'lodash.debounce';
 
 
@@ -15,7 +16,7 @@ const Home = () => {
     const magnifierRef = useRef(null);
     const containerRef = useRef(null);
    
-    const fetchItems = async (page = 1, limit = itemsPerPage) => {
+    const fetchItems = useCallback(async (page = 1, limit = itemsPerPage) => {
         try {
             const response = await fetch(`/acha-kvell/item?page=${page}&limit=${limit}`);
             if (!response.ok) {
@@ -27,18 +28,17 @@ const Home = () => {
             setTotalPages(thisJson.totalPages);
             if (thisJson.items.length > 0) {
                 handleRowClick(this.Json.items[0].masterCode);
-                {/*setSelectedItem(thisJson.items[0]); // Set the first item as the default selected item*/}
                 setCurrentMasterCode(thisJson.items[0].masterCode);
                 setSku(thisJson.items[0].sku);
             }
         } catch (error) {
             console.error('Error fetching items:', error);
         }    
-    };
+    }, [itemsPerPage]);
 
-    const handleRowClick = async (masterCode) => {
+    const handleRowClick = async (currentSku) => {
         try {
-            const response = await fetch(`/acha-kvell/item/${masterCode}`);
+            const response = await fetch(`/acha-kvell/item/${currentSku}`);
 
             if (!response.ok) {
                 throw new Error('Failed to fetch item details');
@@ -76,15 +76,8 @@ const Home = () => {
     }, 300);
 
     useEffect(() => {
-        const fetchData = async () => {
-          await fetchItems(currentPage);
-        };
-        fetchData();
-      }, [currentPage]);
-
-    {/*useEffect(() => {
         fetchItems(currentPage);
-    }, [currentPage]);*/}
+    }, [currentPage, fetchItems]);
 
     const handleItemsPerPageChange = (e) => {
         const newItemsPerPage = parseInt(e.target.value, 10);
@@ -103,10 +96,10 @@ const Home = () => {
 
         if (x > 0 && y > 0 && x < rect.width && y < rect.height) {
             magnifier.style.display = 'block';
-            magnifier.style.left = `${x - magnifier.offsetWidth / 2}px`;
-            magnifier.style.top = `${y - magnifier.offsetHeight / 2}px`;
+            magnifier.style.left = `${x - magnifier.offsetWidth / 3}px`;
+            magnifier.style.top = `${y - magnifier.offsetHeight / 3}px`;
             magnifier.style.backgroundImage = `url(${img.src})`;
-            magnifier.style.backgroundPosition = `-${x * 1.5 - magnifier.offsetWidth / 2}px -${y * 1.5 - magnifier.offsetHeight / 2}px`;
+            magnifier.style.backgroundPosition = `-${x * 1.05 - magnifier.offsetWidth / 2}px -${y * 1.05 - magnifier.offsetHeight / 2}px`;
         } else {
             magnifier.style.display = 'none';
         }
@@ -127,7 +120,7 @@ const Home = () => {
         <div className={"content"}>
             <div className={"contentLeft"}>
                 <div className="pagination-container">
-                    <button className="pagination-button" onClick={() => goToPage(1)}>First Page</button>
+                    <button className="pagination-button" onClick={() => goToPage(1)}>1</button>
                     <button className="pagination-button" onClick={previousPage}>Previous</button>
                     <input
                         type="number"
@@ -161,7 +154,8 @@ const Home = () => {
                             <div>{item.masterCode}</div>
                             <div>{item.oldCode}</div>
                             <div>{item.sku}</div>
-                            <div><button onClick={() => handleRowClick(item.masterCode)}>
+                            <div classname={"infoButton"}>
+                                <button onClick={() => handleRowClick(item.sku)}>
                                      Click for info
                                 </button>
                             </div>
@@ -187,9 +181,10 @@ const Home = () => {
                                 ref={containerRef}>
                                 <img
                                         src={(currentFileLocation)}
-                                        alt={`Master Code Image not loaded {currentFileLocation}`}
+                                        alt={`Master Code not loaded ${currentFileLocation}`}
                                     />
                                     <div className="magnifier" ref={magnifierRef}></div>
+                                    {`Current Master Code: ${currentFileLocation}, ${currentMasterCode}`}
                                 </div>
                             ) : (
 

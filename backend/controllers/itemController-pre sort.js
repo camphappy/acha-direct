@@ -1,4 +1,4 @@
-// ~/MernStart/acha-direct/backend/controllers/itemController.js
+//~/MernStart/backend/controllers/itemController.js
 const Item = require('../models/itemModel')
 const mongoose = require('mongoose')
 const fs = require('fs');
@@ -40,30 +40,25 @@ const getItem = async (req, res) => {
 
         // items is an array, so we check its length
         if (items.length === 0) {
-            return res.status(404).json({ error: 'Item ain\'t found' });
+            return res.status(404).json({ error: 'Item not found' });
         }
 
         const item = items[0]; // Get the first item from the array
  
         // Construct the path to the file in frontend/assets/inventoryPics
-        filePath = path.join(__dirname, '../..', 'backend','public', 'assets', 'fullInventoryPics',`${item.masterCode}.jpg`);
+        filePath = path.join(__dirname, '../..', 'backend', 'public');
 
-        //filePath = path.join(__dirname, '../..', 'backend','public', 'assets', 'fullInventoryPics',`${item.masterCode}.jpg`);
-
-        //const fileUrl = path.join(__dirname,'../','public','assets','fullInventoryPics',`${item.masterCode}.jpg`);
-        const fileUrl = `../..backend/assets/fullInventoryPics/${item.masterCode}.jpg`;
-
+        const fileUrl = `/assets/fullInventoryPics/${item.masterCode}.jpg`;
 
         // Check if the file exists
-        fs.access(fileUrl, fs.constants.F_OK, (err) => {
+        fs.access(filePath, fs.constants.F_OK, (err) => {
             if (err) {
                 // File does not exist
-                return res.status(404).json({
-                    error: 'Image ain\'t found',
+                return res.status(200).json({
                     item,
                     imageExists: false,
                     fileLocation: fileUrl, // Include the string value of filePath
-                    errorMessage: 'Image directory is bad or file not found'
+                    errorMessage: 'Image directory is bad or file not found',
                 });
             } else {
                 // File exists
@@ -71,6 +66,7 @@ const getItem = async (req, res) => {
                     item,
                     imageExists: true,
                     fileLocation: fileUrl // Include the string value of filePath
+                    
                 });
             }
     });
@@ -81,6 +77,7 @@ const getItem = async (req, res) => {
 };
 
 //create a new item
+const appId ="itemController001" 
 const createItem = async (req, res) => {
     const {sku, masterCode, oldCode} = req.body
     //add doc to db    

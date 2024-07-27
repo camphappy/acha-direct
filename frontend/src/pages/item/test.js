@@ -1,7 +1,5 @@
-//Includes page listing.
-import React, { useEffect, useState, useRef, useCallback} from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import debounce from 'lodash.debounce';
-
 
 const Home = () => {
     const [items, setItems] = useState([]);
@@ -13,10 +11,10 @@ const Home = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(50); // Default value
-    const [selectedRow, setSelectedRow] = useState(null); // new variable to track selected row in the page
+    const [selectedRow, setSelectedRow] = useState(null); // New state for tracking selected row
     const magnifierRef = useRef(null);
     const containerRef = useRef(null);
-   
+
     const fetchItems = useCallback(async (page = 1, limit = itemsPerPage) => {
         try {
             const response = await fetch(`/acha-kvell/item?page=${page}&limit=${limit}`);
@@ -28,14 +26,13 @@ const Home = () => {
             setCurrentPage(thisJson.currentPage);
             setTotalPages(thisJson.totalPages);
             if (thisJson.items.length > 0) {
-                handleRowClick(this.Json.items[0].sku);
+                handleRowClick(thisJson.items[0].sku);
                 setCurrentMasterCode(thisJson.items[0].masterCode);
                 setSku(thisJson.items[0].sku);
-                setSelectedRow(currentSku);
             }
         } catch (error) {
             console.error('Error fetching items:', error);
-        }    
+        }
     }, [itemsPerPage]);
 
     const handleRowClick = async (currentSku) => {
@@ -46,16 +43,16 @@ const Home = () => {
                 throw new Error('Failed to fetch item details');
             }
             const thisJson = await response.json();
-                setSelectedItem(thisJson);
-                setCurrentMasterCode(thisJson.masterCode);
-                setSku(thisJson.sku);
-                setFileLocation(thisJson.fileLocation);
-                setImageExists(thisJson.imageExists);
-                setSelectedRow(currentSku); // Update the selectedRow state with the clicked sku   
-            } catch (error) {
-                console.error('Error fetching item details:', error);
-            }
-
+            setSelectedItem(thisJson);
+            setCurrentMasterCode(thisJson.masterCode);
+            setSku(thisJson.sku);
+            setFileLocation(thisJson.fileLocation);
+            setImageExists(thisJson.imageExists);
+            setSelectedRow(thisJson.sku); // Update the selectedRow state with the clicked sku
+            console.log("Selected Row:", thisJson.sku); // Debugging log
+        } catch (error) {
+            console.error('Error fetching item details:', error);
+        }
     };
 
     const goToPage = debounce((page) => {
@@ -73,7 +70,7 @@ const Home = () => {
 
     const nextPage = debounce(() => {
         if (currentPage < totalPages) {
-            handleRowClick(currentMasterCode,)
+            handleRowClick(currentMasterCode);
             setCurrentPage(currentPage + 1);
         }
     }, 300);
@@ -86,7 +83,6 @@ const Home = () => {
         const newItemsPerPage = parseInt(e.target.value, 10);
         setItemsPerPage(newItemsPerPage);
         fetchItems(currentPage, newItemsPerPage); // Fetch items based on the new itemsPerPage value
-    
     };
 
     const handleMouseMove = (e) => {
@@ -113,17 +109,11 @@ const Home = () => {
         magnifier.style.display = 'none';
     };
 
-    //Images must always be under MernStart/frontend/public/
-    // for this project, it is stored in 
-    //const getImagePath = (thisMasterCode) => {
-    //    return currentFileLocation;
-    //};
-
     return (
         <div className={"content"}>
             <div className={"contentLeft"}>
                 <div className="pagination-container">
-                    <button className="pagination-button" onClick={() => goToPage(1)}>First</button>
+                    <button className="pagination-button" onClick={() => goToPage(1)}>1</button>
                     <button className="pagination-button" onClick={previousPage}>Previous</button>
                     <input
                         type="number"
@@ -149,24 +139,23 @@ const Home = () => {
                    <div>Master Code</div>
                    <div>Old Code</div>
                    <div>SKU</div>
-                    <div>RowSKU</div>
+                   <div>Selected Row</div>
                 </div>
                 <div className={"scrollable"}>
-                    {items.map((item, index) => (
+                    {items.map((item) => (
                         <div
-                        key={item.sku}
-                        className={`rowList ${selectedRow === item.sku ? 'selected' : ''}`}
-                        onClick={() => handleRowClick(item.sku)}
-                        style={{ backgroundColor: selectedRow === item.sku ? 'lightblue' : 'white' }} // Apply background color based on selection
+                            key={item.sku}
+                            className={`rowList ${selectedRow === item.sku ? 'selected' : ''}`}
+                            onClick={() => handleRowClick(item.sku)}
+                            style={{ backgroundColor: selectedRow === item.sku ? 'lightblue' : 'white' }} // Apply background color based on selection
                         >
                             <div>{item.masterCode}</div>
                             <div>{item.oldCode}</div>
                             <div>{item.sku}</div>
-                            <div>{item.selectedRow}</div>
+                            <div>{selectedRow}</div>
                         </div>
-                    ))} 
+                    ))}
                 </div>
-                  
             </div>
             
             {imageExists && (
@@ -176,14 +165,14 @@ const Home = () => {
                         <div>
                             {currentMasterCode && `Current Master Code: ${currentFileLocation}, ${currentMasterCode}`}
                         </div>
-                <div>
+                        <div>
                             {imageExists ? (
                                 <div
-                                className="container"
-                                onMouseMove={handleMouseMove}
-                                onMouseLeave={handleMouseLeave}
-                                ref={containerRef}>
-                                <img
+                                    className="container"
+                                    onMouseMove={handleMouseMove}
+                                    onMouseLeave={handleMouseLeave}
+                                    ref={containerRef}>
+                                    <img
                                         src={(currentFileLocation)}
                                         alt={`Master Code not loaded ${currentFileLocation}`}
                                     />
@@ -191,13 +180,13 @@ const Home = () => {
                                     {`Current Master Code: ${currentFileLocation}, ${currentMasterCode}`}
                                 </div>
                             ) : (
-
                                 'Image not found'
                             )}
-                </div>
+                        </div>
                 </div>
             )}
         </div>
     );
 };
+
 export default Home;

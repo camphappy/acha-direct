@@ -11,15 +11,16 @@ const getItems = async (req, res) => {
     const { page = 1, limit = itemsPerPage } = req.query; // Default to page 1 and limit 100
     try {
         const items = await Item.find({})
-            .sort({ createdAt: -1 })
+            .sort({ masterCode: 1, oldCode: 1, sku: 1 })
+            //.sort({ createdAt: -1 })
             .skip((page - 1) * limit)
             .limit(Number(limit));
         const totalItems = await Item.countDocuments({});
-        res.status(200).json({
-            items,
-            currentPage: Number(page),
-            totalPages: Math.ceil(totalItems / limit),
-        });
+            res.status(200).json({
+                items,
+                currentPage: Number(page),
+                totalPages: Math.ceil(totalItems / limit),
+            });
     } catch (error) {
         res.status(500).json({ error: 'Internal Server Error' });
     }

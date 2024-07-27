@@ -155,17 +155,36 @@ grid-area: header;
 
 /* Styling for each row in the list */
 .rowList {
-  font-family: 'Lucida Console', sans-serif, Helvetica, sans-serif;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  font-family: Arial, sans-serif;
+  font-size: 12px;
   display: flex;
-  padding: 10px;
+  padding: 2px;
+}
+
+.rowList:hover {
+  background-color: #f0f0f0;
+}
+
+.rowList:active {
+  background-color: #e0e0e0;
 }
 
 .rowList div {
   flex: 1;
+  font-size: 12px;
   text-align: left;
-  border-bottom: 1px solid #bdbcbc;
+  border-bottom: 2px solid #cfced1;
 }
 
+.rowList.selected {
+  flex: 1;
+  font-size: 12px;
+  background-color: #a1a0aa;
+  text-align: left;
+  border-bottom: 2px solid #cfced1;
+}
 
 /* Styling for the left sidebar */
 .leftSidebar {
@@ -276,4 +295,29 @@ grid-area: header;
   transform-origin: center;
   background-size: 300%;
   pointer-events: none; /* Ensures the magnifier doesn't interfere with mouse events */
+}
+
+/* used for list sorting */
+.sort-container {
+  margin-top: 20px;
+  display: flex;
+  align-items: center;
+}
+
+.sort-container input[type="checkbox"] {
+  margin-right: 10px;
+}
+
+.refresh-button {
+  margin-left: 10px;
+  position: relative;
+}
+
+.hover-text {
+  position: absolute;
+  background-color: #f1f1f1;
+  padding: 5px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  top: 30px
 }
