@@ -158,13 +158,14 @@ grid-area: header;
   cursor: pointer;
   transition: background-color 0.3s;
   font-family: Arial, sans-serif;
-  font-size: 12px;
+  color:#1d1d1d;
+  font-size: 14px;
   display: flex;
-  padding: 2px;
+  padding: 3px;
 }
 
 .rowList:hover {
-  background-color: #f0f0f0;
+  background-color: #e76f6f;
 }
 
 .rowList:active {
@@ -173,7 +174,7 @@ grid-area: header;
 
 .rowList div {
   flex: 1;
-  font-size: 12px;
+  font-size: 16px;
   text-align: left;
   border-bottom: 2px solid #cfced1;
 }
