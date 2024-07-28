@@ -14,6 +14,9 @@ const Home = () => {
     const [totalPages, setTotalPages] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(50); // Default value
     const [selectedRow, setSelectedRow] = useState(null); // new variable to track selected row in the page
+    const [isMouseOver, setIsMouseOver] = useState(false); // Track mouse position
+    const [dynamicMessage, setDynamicMessage] = useState('');
+    const [title, setTitle] = useState('');
     const magnifierRef = useRef(null);
     const containerRef = useRef(null);
    
@@ -113,6 +116,26 @@ const Home = () => {
         magnifier.style.display = 'none';
     };
 
+    useEffect(() => {
+        const handleKeyDown = (event) => {
+            if (event.key === 'Enter' && isMouseOver) {
+                handleDoubleClick(dynamicMessage, title);
+            }
+        };
+
+        document.addEventListener('keydown', handleKeyDown);
+
+        return () => {
+            document.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [isMouseOver, dynamicMessage, title]);
+
+    const handleDoubleClick = (setDynamicMessage,setTitle) => {
+        window.open('', '_blank').document.write(dynamicMessage);
+    };
+
+
+
     //Images must always be under MernStart/frontend/public/
     // for this project, it is stored in 
     //const getImagePath = (thisMasterCode) => {
@@ -146,9 +169,9 @@ const Home = () => {
                     </div>
                 </div>
                 <div className={"menuField"}>
-                   <div>Master Code</div>
-                   <div>Old Code</div>
-                   <div>SKU</div>
+                    <div>Master Code</div>
+                    <div>Old Code</div>
+                    <div>SKU</div>
                     <div>RowSKU</div>
                 </div>
                 <div className={"scrollable"}>
@@ -157,11 +180,35 @@ const Home = () => {
                         key={item.sku}
                         className={`rowList ${selectedRow === item.sku ? 'selected' : ''}`}
                         onClick={() => handleRowClick(item.sku)}
-                        style={{ backgroundColor: selectedRow === item.sku ? 'lightblue' : 'white' }} // Apply background color based on selection
-                        >
-                            <div>{item.masterCode}</div>
-                            <div>{item.oldCode}</div>
-                            <div>{item.sku}</div>
+                        style={{ backgroundColor: selectedRow === item.sku ? 'lightblue' : 'white' }}> {/*/Apply background color based on selection*/}
+                            <div
+                                onMouseEnter={() => {
+                                    setIsMouseOver(true)
+                                    setDynamicMessage('masterCode was double clicked')
+                                    setTitle(item.masterCode)
+                                }}
+                                onMouseLeave={() => setIsMouseOver(false)}
+                                onDoubleClick={() => handleDoubleClick(dynamicMessage,item.masterCode)}>
+                                {item.masterCode}
+                            </div>
+                            <div
+                                onMouseEnter={() => {
+                                    setIsMouseOver(true)
+                                    setDynamicMessage('oldCode was double clicked')
+                                }}
+                                onMouseLeave={() => setIsMouseOver(false)}
+                                onDoubleClick={() => handleDoubleClick(dynamicMessage,item.oldCode)}>
+                                {item.oldCode}
+                            </div>
+                            <div
+                            onMouseEnter={() => {
+                                setIsMouseOver(true)
+                                setDynamicMessage('sku was double clicked')
+                                }}
+                                onMouseLeave={() => setIsMouseOver(false)}
+                                onDoubleClick={() => handleDoubleClick(dynamicMessage,item.sku)}>
+                                {item.sku}
+                            </div>
                             <div>{item.selectedRow}</div>
                         </div>
                     ))} 

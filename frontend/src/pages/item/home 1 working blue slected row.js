@@ -15,6 +15,7 @@ const Home = () => {
     const [totalPages, setTotalPages] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(50); // Default value
     const [selectedRow, setSelectedRow] = useState(null); // new variable to track selected row in the page
+    const [dynamicMessage, setDynamicMessage] = useState('');
     const magnifierRef = useRef(null);
     const containerRef = useRef(null);
    

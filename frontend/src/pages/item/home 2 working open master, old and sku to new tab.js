@@ -13,6 +13,10 @@ const Home = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(50); // Default value
+    const [selectedRow, setSelectedRow] = useState(null); // new variable to track selected row in the page
+    const [isMouseOver, setIsMouseOver] = useState(false); // Track mouse position
+    const [dynamicMessage, setDynamicMessage] = useState('');
+    const [title, setTitle] = useState('');
     const magnifierRef = useRef(null);
     const containerRef = useRef(null);
    
@@ -27,9 +31,10 @@ const Home = () => {
             setCurrentPage(thisJson.currentPage);
             setTotalPages(thisJson.totalPages);
             if (thisJson.items.length > 0) {
-                handleRowClick(this.Json.items[0].masterCode);
+                handleRowClick(this.Json.items[0].sku);
                 setCurrentMasterCode(thisJson.items[0].masterCode);
                 setSku(thisJson.items[0].sku);
+                setSelectedRow(currentSku);
             }
         } catch (error) {
             console.error('Error fetching items:', error);
@@ -48,7 +53,8 @@ const Home = () => {
                 setCurrentMasterCode(thisJson.masterCode);
                 setSku(thisJson.sku);
                 setFileLocation(thisJson.fileLocation);
-                setImageExists(thisJson.imageExists);  
+                setImageExists(thisJson.imageExists);
+                setSelectedRow(currentSku); // Update the selectedRow state with the clicked sku   
             } catch (error) {
                 console.error('Error fetching item details:', error);
             }
@@ -110,6 +116,26 @@ const Home = () => {
         magnifier.style.display = 'none';
     };
 
+    useEffect(() => {
+        const handleKeyDown = (event) => {
+            if (event.key === 'Enter' && isMouseOver) {
+                handleDoubleClick(dynamicMessage, title);
+            }
+        };
+
+        document.addEventListener('keydown', handleKeyDown);
+
+        return () => {
+            document.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [isMouseOver, dynamicMessage, title]);
+
+    const handleDoubleClick = (setDynamicMessage,setTitle) => {
+        window.open('', '_blank').document.write(dynamicMessage);
+    };
+
+
+
     //Images must always be under MernStart/frontend/public/
     // for this project, it is stored in 
     //const getImagePath = (thisMasterCode) => {
@@ -120,7 +146,7 @@ const Home = () => {
         <div className={"content"}>
             <div className={"contentLeft"}>
                 <div className="pagination-container">
-                    <button className="pagination-button" onClick={() => goToPage(1)}>1</button>
+                    <button className="pagination-button" onClick={() => goToPage(1)}>First</button>
                     <button className="pagination-button" onClick={previousPage}>Previous</button>
                     <input
                         type="number"
@@ -143,22 +169,47 @@ const Home = () => {
                     </div>
                 </div>
                 <div className={"menuField"}>
-                   <div>Master Code</div>
-                   <div>Old Code</div>
-                   <div>SKU</div>
-                    <div>Link</div>
+                    <div>Master Code</div>
+                    <div>Old Code</div>
+                    <div>SKU</div>
+                    <div>RowSKU</div>
                 </div>
                 <div className={"scrollable"}>
-                    {items.map((item) => (
-                        <div key={item.sku} className={"rowList"}>
-                            <div>{item.masterCode}</div>
-                            <div>{item.oldCode}</div>
-                            <div>{item.sku}</div>
-                            <div classname={"infoButton"}>
-                                <button onClick={() => handleRowClick(item.sku)}>
-                                     Click for info
-                                </button>
+                    {items.map((item, index) => (
+                        <div
+                        key={item.sku}
+                        className={`rowList ${selectedRow === item.sku ? 'selected' : ''}`}
+                        onClick={() => handleRowClick(item.sku)}
+                        style={{ backgroundColor: selectedRow === item.sku ? 'lightblue' : 'white' }}> {/*/Apply background color based on selection*/}
+                            <div
+                                onMouseEnter={() => {
+                                    setIsMouseOver(true)
+                                    setDynamicMessage('masterCode was double clicked')
+                                    setTitle(item.masterCode)
+                                }}
+                                onMouseLeave={() => setIsMouseOver(false)}
+                                onDoubleClick={() => handleDoubleClick(dynamicMessage,item.masterCode)}>
+                                {item.masterCode}
                             </div>
+                            <div
+                                onMouseEnter={() => {
+                                    setIsMouseOver(true)
+                                    setDynamicMessage('oldCode was double clicked')
+                                }}
+                                onMouseLeave={() => setIsMouseOver(false)}
+                                onDoubleClick={() => handleDoubleClick(dynamicMessage,item.oldCode)}>
+                                {item.oldCode}
+                            </div>
+                            <div
+                            onMouseEnter={() => {
+                                setIsMouseOver(true)
+                                setDynamicMessage('sku was double clicked')
+                                }}
+                                onMouseLeave={() => setIsMouseOver(false)}
+                                onDoubleClick={() => handleDoubleClick(dynamicMessage,item.sku)}>
+                                {item.sku}
+                            </div>
+                            <div>{item.selectedRow}</div>
                         </div>
                     ))} 
                 </div>

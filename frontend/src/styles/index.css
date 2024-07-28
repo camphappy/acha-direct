@@ -176,7 +176,7 @@ grid-area: header;
   flex: 1;
   font-size: 16px;
   text-align: left;
-  border-bottom: 2px solid #cfced1;
+  border-bottom: 1px solid #cfced1;
 }
 
 .rowList.selected {

@@ -1,15 +1,29 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
-import { fetchItems } from './components/item/itemService';
 import debounce from 'lodash.debounce';
 
-// ...
-
 const Home = () => {
-    // ... other state and hooks
+    const [items, setItems] = useState([]);
+    const [selectedItem, setSelectedItem] = useState(null);
+    const [currentMasterCode, setCurrentMasterCode] = useState(null);
+    const [currentFileLocation, setFileLocation] = useState('');
+    const [currentSku, setSku] = useState(null);
+    const [imageExists, setImageExists] = useState(false);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const [itemsPerPage, setItemsPerPage] = useState(50); // Default value
+    const [selectedRow, setSelectedRow] = useState(null); // new variable to track selected row in the page
+    const [isMouseOver, setIsMouseOver] = useState(false); // Track mouse position
+    const [dynamicMessage, setDynamicMessage] = useState('');
+    const magnifierRef = useRef(null);
+    const containerRef = useRef(null);
 
-    const fetchItemsData = useCallback(async (page = 1, limit = itemsPerPage) => {
+    const fetchItems = useCallback(async (page = 1, limit = itemsPerPage) => {
         try {
-            const thisJson = await fetchItems(page, limit);
+            const response = await fetch(`/acha-kvell/item?page=${page}&limit=${limit}`);
+            if (!response.ok) {
+                throw new Error('Failed to fetch items');
+            }
+            const thisJson = await response.json();
             setItems(thisJson.items);
             setCurrentPage(thisJson.currentPage);
             setTotalPages(thisJson.totalPages);
@@ -17,17 +31,208 @@ const Home = () => {
                 handleRowClick(thisJson.items[0].sku);
                 setCurrentMasterCode(thisJson.items[0].masterCode);
                 setSku(thisJson.items[0].sku);
+                setSelectedRow(thisJson.items[0].sku);
             }
         } catch (error) {
             console.error('Error fetching items:', error);
         }
     }, [itemsPerPage]);
 
-    // ... other functions
+    const handleRowClick = async (currentSku) => {
+        try {
+            const response = await fetch(`/acha-kvell/item/${currentSku}`);
+            if (!response.ok) {
+                throw new Error('Failed to fetch item details');
+            }
+            const thisJson = await response.json();
+            setSelectedItem(thisJson);
+            setCurrentMasterCode(thisJson.masterCode);
+            setSku(thisJson.sku);
+            setFileLocation(thisJson.fileLocation);
+            setImageExists(thisJson.imageExists);
+            setSelectedRow(currentSku); // Update the selectedRow state with the clicked sku   
+        } catch (error) {
+            console.error('Error fetching item details:', error);
+        }
+    };
+
+    const goToPage = debounce((page) => {
+        page = parseInt(page, 10);
+        if (page >= 1 && page <= totalPages) {
+            setCurrentPage(page);
+        }
+    }, 300);
+
+    const previousPage = debounce(() => {
+        if (currentPage > 1) {
+            setCurrentPage(currentPage - 1);
+        }
+    }, 300);
+
+    const nextPage = debounce(() => {
+        if (currentPage < totalPages) {
+            setCurrentPage(currentPage + 1);
+        }
+    }, 300);
 
     useEffect(() => {
-        fetchItemsData(currentPage);
-    }, [currentPage, fetchItemsData]);
+        fetchItems(currentPage);
+    }, [currentPage, fetchItems]);
 
-    // ... JSX and rest of the component
+    const handleItemsPerPageChange = (e) => {
+        const newItemsPerPage = parseInt(e.target.value, 10);
+        setItemsPerPage(newItemsPerPage);
+        fetchItems(currentPage, newItemsPerPage); // Fetch items based on the new itemsPerPage value
+    };
+
+    const handleMouseMove = (e) => {
+        const magnifier = magnifierRef.current;
+        const container = containerRef.current;
+        const img = container.querySelector('img');
+        const rect = container.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+
+        if (x > 0 && y > 0 && x < rect.width && y < rect.height) {
+            magnifier.style.display = 'block';
+            magnifier.style.left = `${x - magnifier.offsetWidth / 3}px`;
+            magnifier.style.top = `${y - magnifier.offsetHeight / 3}px`;
+            magnifier.style.backgroundImage = `url(${img.src})`;
+            magnifier.style.backgroundPosition = `-${x * 1.05 - magnifier.offsetWidth / 2}px -${y * 1.05 - magnifier.offsetHeight / 2}px`;
+        } else {
+            magnifier.style.display = 'none';
+        }
+    };
+
+    const handleMouseLeave = () => {
+        const magnifier = magnifierRef.current;
+        magnifier.style.display = 'none';
+    };
+
+    const handleDoubleClick = (message, code) => {
+        const newTab = window.open('', '_blank');
+        newTab.document.write(message);
+        newTab.document.title = code;
+    };
+
+    useEffect(() => {
+        const handleKeyDown = (event) => {
+            if (event.key === 'Enter' && isMouseOver) {
+                handleDoubleClick(dynamicMessage, title);
+            }
+        };
+
+        document.addEventListener('keydown', handleKeyDown);
+
+        return () => {
+            document.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [isMouseOver, dynamicMessage, title]);
+
+    return (
+        <div className={"content"}>
+            <div className={"contentLeft"}>
+                <div className="pagination-container">
+                    <button className="pagination-button" onClick={() => goToPage(1)}>First</button>
+                    <button className="pagination-button" onClick={previousPage}>Previous</button>
+                    <input
+                        type="number"
+                        className="pagination-input"
+                        value={currentPage}
+                        min="1"
+                        max={totalPages}
+                        onChange={(e) => goToPage(Number(e.target.value))}
+                    />
+                    <button className="pagination-button" onClick={nextPage}>Next</button>
+                    <button className="pagination-button" onClick={() => goToPage(totalPages)}>Last</button>
+                    <div>
+                        <label>Rows PP</label><br />
+                        <select value={itemsPerPage} onChange={handleItemsPerPageChange}>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="75">75</option>
+                            <option value="100">100</option>
+                        </select>
+                    </div>
+                </div>
+                <div className={"menuField"}>
+                    <div>Master Code</div>
+                    <div>Old Code</div>
+                    <div>SKU</div>
+                    <div>RowSKU</div>
+                </div>
+                <div className={"scrollable"}>
+                    {items.map((item, index) => (
+                        <div
+                            key={item.sku}
+                            className={`rowList ${selectedRow === item.sku ? 'selected' : ''}`}
+                            onClick={() => handleRowClick(item.sku)}
+                            style={{ backgroundColor: selectedRow === item.sku ? 'lightblue' : 'white' }}> {/*/Apply background color based on selection*/}
+                            <div
+                                onMouseEnter={() => {
+                                    setIsMouseOver(true);
+                                    setDynamicMessage('masterCode was double clicked');
+                                    setTitle(item.masterCode);
+                                }}
+                                onMouseLeave={() => setIsMouseOver(false)}
+                                onDoubleClick={() => handleDoubleClick(dynamicMessage, item.masterCode)}>
+                                {item.masterCode}
+                            </div>
+                            <div
+                                onMouseEnter={() => {
+                                    setIsMouseOver(true);
+                                    setDynamicMessage('oldCode was double clicked');
+                                    setTitle(item.oldCode);
+                                }}
+                                onMouseLeave={() => setIsMouseOver(false)}
+                                onDoubleClick={() => handleDoubleClick(dynamicMessage, item.oldCode)}>
+                                {item.oldCode}
+                            </div>
+                            <div
+                                onMouseEnter={() => {
+                                    setIsMouseOver(true);
+                                    setDynamicMessage('sku was double clicked');
+                                    setTitle(item.sku);
+                                }}
+                                onMouseLeave={() => setIsMouseOver(false)}
+                                onDoubleClick={() => handleDoubleClick(dynamicMessage, item.sku)}>
+                                {item.sku}
+                            </div>
+                            <div>{item.selectedRow}</div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+
+            {imageExists && (
+                <div className="contentRight">
+                    {/* Display the selected item JSON */}
+                    {selectedItem && <pre>{JSON.stringify(selectedItem, null, 2)}</pre>}
+                    <div>
+                        {currentMasterCode && `Current Master Code: ${currentFileLocation}, ${currentMasterCode}`}
+                    </div>
+                    <div>
+                        {imageExists ? (
+                            <div
+                                className="container"
+                                onMouseMove={handleMouseMove}
+                                onMouseLeave={handleMouseLeave}
+                                ref={containerRef}>
+                                <img
+                                    src={(currentFileLocation)}
+                                    alt={`Master Code not loaded ${currentFileLocation}`}
+                                />
+                                <div className="magnifier" ref={magnifierRef}></div>
+                                {`Current Master Code: ${currentFileLocation}, ${currentMasterCode}`}
+                            </div>
+                        ) : (
+                            'Image not found'
+                        )}
+                    </div>
+                </div>
+            )}
+        </div>
+    );
 };
+
+export default Home;
