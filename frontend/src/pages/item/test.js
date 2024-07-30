@@ -14,6 +14,7 @@ const Home = () => {
     const [selectedRow, setSelectedRow] = useState(null); // new variable to track selected row in the page
     const [isMouseOver, setIsMouseOver] = useState(false); // Track mouse position
     const [dynamicMessage, setDynamicMessage] = useState('');
+    const [title, setTitle] = useState('');
     const magnifierRef = useRef(null);
     const containerRef = useRef(null);
 
@@ -28,10 +29,10 @@ const Home = () => {
             setCurrentPage(thisJson.currentPage);
             setTotalPages(thisJson.totalPages);
             if (thisJson.items.length > 0) {
-                handleRowClick(thisJson.items[0].sku);
+                handleRowClick(this.Json.items[0].sku);
                 setCurrentMasterCode(thisJson.items[0].masterCode);
                 setSku(thisJson.items[0].sku);
-                setSelectedRow(thisJson.items[0].sku);
+                setSelectedRow(currentSku);
             }
         } catch (error) {
             console.error('Error fetching items:', error);
@@ -71,6 +72,7 @@ const Home = () => {
 
     const nextPage = debounce(() => {
         if (currentPage < totalPages) {
+            handleRowClick(currentMasterCode, )
             setCurrentPage(currentPage + 1);
         }
     }, 300);
@@ -109,11 +111,11 @@ const Home = () => {
         magnifier.style.display = 'none';
     };
 
-    const handleDoubleClick = (message, code) => {
+    const handleDoubleClick = useCallback((dynamicMessage, title) => {
         const newTab = window.open('', '_blank');
-        newTab.document.write(message);
-        newTab.document.title = code;
-    };
+        newTab.document.write(dynamicMessage);
+        newTab.document.title = title;
+    }, []);
 
     useEffect(() => {
         const handleKeyDown = (event) => {
@@ -127,7 +129,7 @@ const Home = () => {
         return () => {
             document.removeEventListener('keydown', handleKeyDown);
         };
-    }, [isMouseOver, dynamicMessage, title]);
+    }, [isMouseOver, dynamicMessage, title, handleDoubleClick]);
 
     return (
         <div className={"content"}>
@@ -170,9 +172,9 @@ const Home = () => {
                             style={{ backgroundColor: selectedRow === item.sku ? 'lightblue' : 'white' }}> {/*/Apply background color based on selection*/}
                             <div
                                 onMouseEnter={() => {
-                                    setIsMouseOver(true);
-                                    setDynamicMessage('masterCode was double clicked');
-                                    setTitle(item.masterCode);
+                                    setIsMouseOver(true)
+                                    setDynamicMessage('masterCode was double clicked')
+                                    setTitle(item.masterCode)
                                 }}
                                 onMouseLeave={() => setIsMouseOver(false)}
                                 onDoubleClick={() => handleDoubleClick(dynamicMessage, item.masterCode)}>
@@ -180,9 +182,8 @@ const Home = () => {
                             </div>
                             <div
                                 onMouseEnter={() => {
-                                    setIsMouseOver(true);
-                                    setDynamicMessage('oldCode was double clicked');
-                                    setTitle(item.oldCode);
+                                    setIsMouseOver(true)
+                                    setDynamicMessage('oldCode was double clicked')
                                 }}
                                 onMouseLeave={() => setIsMouseOver(false)}
                                 onDoubleClick={() => handleDoubleClick(dynamicMessage, item.oldCode)}>
@@ -190,9 +191,8 @@ const Home = () => {
                             </div>
                             <div
                                 onMouseEnter={() => {
-                                    setIsMouseOver(true);
-                                    setDynamicMessage('sku was double clicked');
-                                    setTitle(item.sku);
+                                    setIsMouseOver(true)
+                                    setDynamicMessage('sku was double clicked')
                                 }}
                                 onMouseLeave={() => setIsMouseOver(false)}
                                 onDoubleClick={() => handleDoubleClick(dynamicMessage, item.sku)}>
@@ -202,6 +202,7 @@ const Home = () => {
                         </div>
                     ))}
                 </div>
+
             </div>
 
             {imageExists && (
@@ -226,6 +227,7 @@ const Home = () => {
                                 {`Current Master Code: ${currentFileLocation}, ${currentMasterCode}`}
                             </div>
                         ) : (
+
                             'Image not found'
                         )}
                     </div>

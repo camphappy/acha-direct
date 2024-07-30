@@ -6,7 +6,8 @@ const {
     getItem,
     createItem,
     deleteItem,
-    updateItem
+    updateItem,
+    searchItem
 
 } = require('../controllers/itemController.js')
 
@@ -26,5 +27,8 @@ router.delete('/:id', deleteItem)
  
 //UPDATE or PATCH an item
 router.patch('/:id', updateItem)
+
+//SEARCH an item
+router.get('/search', searchItem)
 
 module.exports = router

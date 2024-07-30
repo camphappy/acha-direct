@@ -116,12 +116,34 @@ const updateItem = async (req,res) => {
     res.status(200).json(item)
 }
 
+const searchItem = async (req, res) => {
+    const { searchText } = req.query;
+    const upperCaseSearchText = searchText.toUpperCase();
 
+    try {
+        const item = await Item.findOne({
+            $or: [
+                { masterCode: upperCaseSearchText },
+                { oldCode: upperCaseSearchText },
+                { sku: upperCaseSearchText }
+            ]
+        });
+
+        if (!item) {
+            return res.status(404).json({ message: 'Your text was not found' });
+        }
+
+        res.status(200).json({ message: 'Text was found', item });
+    } catch (error) {
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+};
 
 module.exports = {
     getItems,
     getItem,
     createItem,
     deleteItem,
-    updateItem
+    updateItem,
+    searchItem
 }

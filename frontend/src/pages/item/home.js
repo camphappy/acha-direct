@@ -116,6 +116,12 @@ const Home = () => {
         magnifier.style.display = 'none';
     };
 
+    const handleDoubleClick = useCallback((dynamicMessage, title) => {
+        const newTab = window.open('', '_blank');
+        newTab.document.write(dynamicMessage);
+        newTab.document.title = title;
+    }, []);
+
     useEffect(() => {
         const handleKeyDown = (event) => {
             if (event.key === 'Enter' && isMouseOver) {
@@ -128,13 +134,28 @@ const Home = () => {
         return () => {
             document.removeEventListener('keydown', handleKeyDown);
         };
-    }, [isMouseOver, dynamicMessage, title]);
+    }, [isMouseOver, dynamicMessage, title, handleDoubleClick]);
 
-    const handleDoubleClick = (setDynamicMessage,setTitle) => {
-        window.open('', '_blank').document.write(dynamicMessage);
-    };
+    {/*const handleSearch = async () => {
+        try {
+            const response = await fetch(`/acha-kvell/search?searchText=${searchText}`);
+            const result = await response.json();
 
-
+            if (!response.ok) {
+                alert(result.message);
+            } else {
+                alert(result.message);
+                setSelectedItem(result.item);
+                setCurrentMasterCode(result.item.masterCode);
+                setSku(result.item.sku);
+                setFileLocation(result.item.fileLocation);
+                setImageExists(result.item.imageExists);
+                setSelectedRow(result.item.sku); // Update the selectedRow state with the searched item sku
+            }
+        } catch (error) {
+            console.error('Error searching item:', error);
+        }
+    };*/}
 
     //Images must always be under MernStart/frontend/public/
     // for this project, it is stored in 
@@ -145,7 +166,7 @@ const Home = () => {
     return (
         <div className={"content"}>
             <div className={"contentLeft"}>
-                <div className="pagination-container">
+                <div className="pagination-container"> {/* Existing pagination and item list */}
                     <button className="pagination-button" onClick={() => goToPage(1)}>First</button>
                     <button className="pagination-button" onClick={previousPage}>Previous</button>
                     <input
@@ -188,7 +209,7 @@ const Home = () => {
                                     setTitle(item.masterCode)
                                 }}
                                 onMouseLeave={() => setIsMouseOver(false)}
-                                onDoubleClick={() => handleDoubleClick(dynamicMessage,item.masterCode)}>
+                                onDoubleClick={() => handleDoubleClick(dynamicMessage,`masterCode:${item.masterCode}`)}>
                                 {item.masterCode}
                             </div>
                             <div
@@ -197,7 +218,7 @@ const Home = () => {
                                     setDynamicMessage('oldCode was double clicked')
                                 }}
                                 onMouseLeave={() => setIsMouseOver(false)}
-                                onDoubleClick={() => handleDoubleClick(dynamicMessage,item.oldCode)}>
+                                onDoubleClick={() => handleDoubleClick(dynamicMessage,`oldCode:${item.oldCode}`)}>
                                 {item.oldCode}
                             </div>
                             <div
@@ -206,7 +227,7 @@ const Home = () => {
                                 setDynamicMessage('sku was double clicked')
                                 }}
                                 onMouseLeave={() => setIsMouseOver(false)}
-                                onDoubleClick={() => handleDoubleClick(dynamicMessage,item.sku)}>
+                                onDoubleClick={() => handleDoubleClick(dynamicMessage,`sku:${item.sku}`)}>
                                 {item.sku}
                             </div>
                             <div>{item.selectedRow}</div>
