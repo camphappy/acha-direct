@@ -193,7 +193,7 @@ const Home = () => {
                     <div>Master Code</div>
                     <div>Old Code</div>
                     <div>SKU</div>
-                    <div>RowSKU</div>
+                    <div>Stock Qty</div>
                 </div>
                 <div className={"scrollable"}>
                     {items.map((item, index) => (
@@ -231,6 +231,15 @@ const Home = () => {
                                 {item.sku}
                             </div>
                             <div>{item.selectedRow}</div>
+                            <div
+                                onMouseEnter={() => {
+                                    setIsMouseOver(true)
+                                    setDynamicMessage('Qty on hand details')
+                                }}
+                                onMouseLeave={() => setIsMouseOver(false)}
+                                onDoubleClick={() => handleDoubleClick(dynamicMessage,`Qty breakdown.`)}>
+                                {item.qtyOnHand}
+                            </div>
                         </div>
                     ))} 
                 </div>
