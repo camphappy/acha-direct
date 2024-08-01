@@ -1,8 +1,9 @@
+
 import {BrowserRouter, Routes, Route } from 'react-router-dom'
 
 //pages and components
-import Navbar from './components/Navbar';
-import Sidebar from './components/lSidebar';
+import Logobar from './components/Logobar';
+//import Sidebar from './components/lSidebar';
 import Home from './pages/item/home';
 
 
@@ -21,8 +22,7 @@ function App() {
   return (
     <div className="mainScreen">
       <BrowserRouter>
-          <Navbar />
-          <Sidebar />
+          <Logobar />
           <Routes>
             <Route path="/" element={<Home />} />
             {/*<Route path="item-details/:sku" element = {<ItemDetails />} />*/}
@@ -32,5 +32,4 @@ function App() {
     </div>
   );
 }
-
 export default App;

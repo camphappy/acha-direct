@@ -8,18 +8,19 @@ const Home = () => {
     const [selectedItem, setSelectedItem] = useState(null);
     const [currentMasterCode, setCurrentMasterCode] = useState(null);
     const [currentFileLocation, setFileLocation] = useState('');
-    const [currentSku, setSku] = useState(null);
+    const [currentSku, setSku] = useState('');
     const [imageExists, setImageExists] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(50); // Default value
     const [selectedRow, setSelectedRow] = useState(null); // new variable to track selected row in the page
+    const [hoveredRow, setHoveredRow] = useState(null); // new variable to track hovered row
     const [isMouseOver, setIsMouseOver] = useState(false); // Track mouse position
     const [dynamicMessage, setDynamicMessage] = useState('');
     const [title, setTitle] = useState('');
+    const [searchText, setSearchText] = useState(''); // Search text state
     const magnifierRef = useRef(null);
     const containerRef = useRef(null);
-   
     const fetchItems = useCallback(async (page = 1, limit = itemsPerPage) => {
         try {
             const response = await fetch(`/acha-kvell/item?page=${page}&limit=${limit}`);
@@ -122,6 +123,11 @@ const Home = () => {
         newTab.document.title = title;
     }, []);
 
+    const handleSearchChange = (e) => {
+        setSearchText(e.target.value);
+        setCurrentPage(1); // Reset to first page on new search
+    };
+
     useEffect(() => {
         const handleKeyDown = (event) => {
             if (event.key === 'Enter' && isMouseOver) {
@@ -136,37 +142,23 @@ const Home = () => {
         };
     }, [isMouseOver, dynamicMessage, title, handleDoubleClick]);
 
-    {/*const handleSearch = async () => {
-        try {
-            const response = await fetch(`/acha-kvell/search?searchText=${searchText}`);
-            const result = await response.json();
-
-            if (!response.ok) {
-                alert(result.message);
-            } else {
-                alert(result.message);
-                setSelectedItem(result.item);
-                setCurrentMasterCode(result.item.masterCode);
-                setSku(result.item.sku);
-                setFileLocation(result.item.fileLocation);
-                setImageExists(result.item.imageExists);
-                setSelectedRow(result.item.sku); // Update the selectedRow state with the searched item sku
-            }
-        } catch (error) {
-            console.error('Error searching item:', error);
-        }
-    };*/}
-
-    //Images must always be under MernStart/frontend/public/
-    // for this project, it is stored in 
-    //const getImagePath = (thisMasterCode) => {
-    //    return currentFileLocation;
-    //};
-
     return (
         <div className={"content"}>
+            <div className = "contentUtilty">
+                <p><br/> Utility Box Content. This is a sample text.</p>
+            </div>
             <div className={"contentLeft"}>
                 <div className="pagination-container"> {/* Existing pagination and item list */}
+                    <div>
+                        <input
+                            type="text"
+                            placeholder="Search..."
+                            value={searchText}
+                            onChange={handleSearchChange}
+                        />
+                    </div>
+                    <div></div>
+                    <div>
                     <button className="pagination-button" onClick={() => goToPage(1)}>First</button>
                     <button className="pagination-button" onClick={previousPage}>Previous</button>
                     <input
@@ -179,8 +171,9 @@ const Home = () => {
                     />
                     <button className="pagination-button" onClick={nextPage}>Next</button>
                     <button className="pagination-button" onClick={() => goToPage(totalPages)}>Last</button>
-                    <div>
-                        <label>Rows PP</label><br/>
+                    </div>
+                    <div classname ={"rowsPerPage-dropdown"}>
+                        <label>Rows PP</label>
                         <select value={itemsPerPage} onChange={handleItemsPerPageChange}>
                             <option value="25">25</option>
                             <option value="50">50</option>
@@ -193,15 +186,20 @@ const Home = () => {
                     <div>Master Code</div>
                     <div>Old Code</div>
                     <div>SKU</div>
+                    <div></div>
                     <div>Stock Qty</div>
                 </div>
                 <div className={"scrollable"}>
                     {items.map((item, index) => (
                         <div
-                        key={item.sku}
-                        className={`rowList ${selectedRow === item.sku ? 'selected' : ''}`}
-                        onClick={() => handleRowClick(item.sku)}
-                        style={{ backgroundColor: selectedRow === item.sku ? 'lightblue' : 'white' }}> {/*/Apply background color based on selection*/}
+                            key={item.sku}
+                            className={`rowList ${selectedRow === item.sku ? 'selected' : ''}`}
+                            onClick={() => handleRowClick(item.sku)}
+                            onMouseEnter={() => setHoveredRow(item.sku)}
+                            onMouseLeave={() => setHoveredRow(null)}
+                            style={{
+                                backgroundColor: selectedRow === item.sku ? 'lightblue' : hoveredRow === item.sku ? 'lightgrey' : 'white'
+                                }}> {/* Apply background color based on selection */}
                             <div
                                 onMouseEnter={() => {
                                     setIsMouseOver(true)

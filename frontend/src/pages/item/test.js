@@ -12,6 +12,7 @@ const Home = () => {
     const [totalPages, setTotalPages] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(50); // Default value
     const [selectedRow, setSelectedRow] = useState(null); // new variable to track selected row in the page
+    const [hoveredRow, setHoveredRow] = useState(null); // new variable to track hovered row
     const [isMouseOver, setIsMouseOver] = useState(false); // Track mouse position
     const [dynamicMessage, setDynamicMessage] = useState('');
     const [title, setTitle] = useState('');
@@ -29,10 +30,10 @@ const Home = () => {
             setCurrentPage(thisJson.currentPage);
             setTotalPages(thisJson.totalPages);
             if (thisJson.items.length > 0) {
-                handleRowClick(this.Json.items[0].sku);
+                handleRowClick(thisJson.items[0].sku);
                 setCurrentMasterCode(thisJson.items[0].masterCode);
                 setSku(thisJson.items[0].sku);
-                setSelectedRow(currentSku);
+                setSelectedRow(thisJson.items[0].sku);
             }
         } catch (error) {
             console.error('Error fetching items:', error);
@@ -42,6 +43,7 @@ const Home = () => {
     const handleRowClick = async (currentSku) => {
         try {
             const response = await fetch(`/acha-kvell/item/${currentSku}`);
+
             if (!response.ok) {
                 throw new Error('Failed to fetch item details');
             }
@@ -51,7 +53,7 @@ const Home = () => {
             setSku(thisJson.sku);
             setFileLocation(thisJson.fileLocation);
             setImageExists(thisJson.imageExists);
-            setSelectedRow(currentSku); // Update the selectedRow state with the clicked sku   
+            setSelectedRow(currentSku); // Update the selectedRow state with the clicked sku
         } catch (error) {
             console.error('Error fetching item details:', error);
         }
@@ -72,7 +74,7 @@ const Home = () => {
 
     const nextPage = debounce(() => {
         if (currentPage < totalPages) {
-            handleRowClick(currentMasterCode, )
+            handleRowClick(currentMasterCode);
             setCurrentPage(currentPage + 1);
         }
     }, 300);
@@ -134,7 +136,7 @@ const Home = () => {
     return (
         <div className={"content"}>
             <div className={"contentLeft"}>
-                <div className="pagination-container">
+                <div className="pagination-container"> {/* Existing pagination and item list */}
                     <button className="pagination-button" onClick={() => goToPage(1)}>First</button>
                     <button className="pagination-button" onClick={previousPage}>Previous</button>
                     <input
@@ -161,7 +163,7 @@ const Home = () => {
                     <div>Master Code</div>
                     <div>Old Code</div>
                     <div>SKU</div>
-                    <div>RowSKU</div>
+                    <div>Stock Qty</div>
                 </div>
                 <div className={"scrollable"}>
                     {items.map((item, index) => (
@@ -169,7 +171,11 @@ const Home = () => {
                             key={item.sku}
                             className={`rowList ${selectedRow === item.sku ? 'selected' : ''}`}
                             onClick={() => handleRowClick(item.sku)}
-                            style={{ backgroundColor: selectedRow === item.sku ? 'lightblue' : 'white' }}> {/*/Apply background color based on selection*/}
+                            onMouseEnter={() => setHoveredRow(item.sku)}
+                            onMouseLeave={() => setHoveredRow(null)}
+                            style={{
+                                backgroundColor: selectedRow === item.sku ? 'lightblue' : hoveredRow === item.sku ? 'light' : 'white'
+                            }}> {/* Apply background color based on selection */}
                             <div
                                 onMouseEnter={() => {
                                     setIsMouseOver(true)
@@ -177,7 +183,7 @@ const Home = () => {
                                     setTitle(item.masterCode)
                                 }}
                                 onMouseLeave={() => setIsMouseOver(false)}
-                                onDoubleClick={() => handleDoubleClick(dynamicMessage, item.masterCode)}>
+                                onDoubleClick={() => handleDoubleClick(dynamicMessage, `masterCode:${item.masterCode}`)}>
                                 {item.masterCode}
                             </div>
                             <div
@@ -186,7 +192,7 @@ const Home = () => {
                                     setDynamicMessage('oldCode was double clicked')
                                 }}
                                 onMouseLeave={() => setIsMouseOver(false)}
-                                onDoubleClick={() => handleDoubleClick(dynamicMessage, item.oldCode)}>
+                                onDoubleClick={() => handleDoubleClick(dynamicMessage, `oldCode:${item.oldCode}`)}>
                                 {item.oldCode}
                             </div>
                             <div
@@ -195,14 +201,22 @@ const Home = () => {
                                     setDynamicMessage('sku was double clicked')
                                 }}
                                 onMouseLeave={() => setIsMouseOver(false)}
-                                onDoubleClick={() => handleDoubleClick(dynamicMessage, item.sku)}>
+                                onDoubleClick={() => handleDoubleClick(dynamicMessage, `sku:${item.sku}`)}>
                                 {item.sku}
                             </div>
                             <div>{item.selectedRow}</div>
+                            <div
+                                onMouseEnter={() => {
+                                    setIsMouseOver(true)
+                                    setDynamicMessage('Qty on hand details')
+                                }}
+                                onMouseLeave={() => setIsMouseOver(false)}
+                                onDoubleClick={() => handleDoubleClick(dynamicMessage, `Qty breakdown.`)}>
+                                {item.qtyOnHand}
+                            </div>
                         </div>
                     ))}
                 </div>
-
             </div>
 
             {imageExists && (
@@ -227,7 +241,6 @@ const Home = () => {
                                 {`Current Master Code: ${currentFileLocation}, ${currentMasterCode}`}
                             </div>
                         ) : (
-
                             'Image not found'
                         )}
                     </div>

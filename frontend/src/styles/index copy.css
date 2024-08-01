@@ -33,16 +33,40 @@
   background: linear-gradient(0deg, #154070 13%, #0A1D33 72%);
 }
 
-.rowHeader div {
-  flex: 1;
-  text-align: center;
-}
-
 .header img {
   animation: myAnim .2s ease 0s 1 normal forwards;
   
 }
 
+/* Default styles for larger screens */
+.mainScreen {
+  display: grid;
+  grid-template-areas:
+    'header header header header'
+    'leftSidebar content content rightSidebar'
+    'leftSidebar content content rightSidebar'
+    'footer footer footer footer';
+  grid-template-columns: 1fr 2fr 2fr 1fr;
+  grid-template-rows: auto 1fr 1fr auto;
+  background-color: rgb(251, 252, 253);
+  border-style: groove;
+  border-color: rgb(150, 150, 237);
+  height: 100vh;
+}
+
+/* Header styling */
+._header {
+  grid-area: header;
+  display: flex;
+  align-items: center;
+  justify-content: left;
+  padding: 10px;
+  background-color: rgb(227, 222, 130);
+  border-bottom: 1px solid rgb(150, 150, 237);
+  animation: fadeIn .2s ease-in-out;
+}
+
+/* Styling for the row header to make it look like spreadsheet headers */
 .rowHeader {
   display: flex;
   justify-content: space-around;
@@ -50,6 +74,11 @@
   background-color: #f1f1f1;
   font-weight: bold;
   
+}
+
+.rowHeader div {
+  flex: 1;
+  text-align: center;
 }
 
 .headerScreenTitle {
@@ -63,56 +92,27 @@ grid-area: header;
   padding: 5px;
 }
 
-
-/* Default styles for larger screens */
-.mainScreen {
-  font-family: Arial, sans-serif;
-  width: 100%;
-  height: 15%;
-  background-color: rgb(251, 252, 253);
-  border-style: groove;
-  border-color: rgb(150, 150, 237);
-  height: 100vh;
-}
-
-/* Styling for the row header to make it look like spreadsheet headers */
-
 /* Content area styling */
 .content {
   grid-area: content;
   width: 100%;
   display: flex;
   flex-direction: row;
-  padding: 2px;
-}
-
-.contentUtility .contentLeft, .contentRight {
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-}
-
-.contentUtility {
-  grid-area: content;
-  width: 10%;
-  flex-direction: column;
-  justify-content: left;
-  padding: 1px;
-  height: 100vh; /* or another height value */
+  padding: 10px;
 }
 
 .contentLeft {
   grid-area: content;
-  width: 50%;
+  width: 70%;
   flex-direction: column;
   padding: 1px;
 }
 
 .contentRight {
   grid-area: content;
-  width: 20%;
+  width: 30%;
   flex-direction: column;
-  padding: 1px;
+  padding: 20px;
 }
 
 /* Scrollable container for the list of items */
@@ -126,17 +126,31 @@ grid-area: header;
   font-family: sans-serif, Helvetica;
   display: flex;
   justify-content: space-around;
-  padding: 6px;
+  padding: 10px;
   font-weight: bold;
-  background-color: #85a1c0;
  
 }
 
 .menuField div {
   display: flex;
   flex: 1;
-  text-align: left;
-  /*border-bottom: 3px solid #919192;*/
+  text-align: center;
+  border-bottom: 3px solid #919192;
+}
+
+/* Add these styles to your CSS file */
+.infoButton {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh; /* or another height value */
+}
+
+.button {
+  /* Additional button styling if needed */
+  padding: 10px 20px;
+  font-size: 10px;
+  cursor: pointer;
 }
 
 /* Styling for each row in the list */
@@ -145,9 +159,13 @@ grid-area: header;
   transition: background-color 0.3s;
   font-family: Arial, sans-serif;
   color:#1d1d1d;
-  font-size: 8px;
+  font-size: 10px;
   display: flex;
   padding: 3px;
+}
+
+.rowList:hover {
+  background-color: #e76f6f;
 }
 
 .rowList:active {
@@ -156,7 +174,7 @@ grid-area: header;
 
 .rowList div {
   flex: 1;
-  font-size: 12px;
+  font-size: 16px;
   text-align: left;
   border-bottom: 1px solid #cfced1;
 }
@@ -169,6 +187,26 @@ grid-area: header;
   border-bottom: 2px solid #cfced1;
 }
 
+/* Styling for the left sidebar */
+.leftSidebar {
+  grid-area: leftSidebar;
+  width: 200px;
+  float: floatLeft;
+  padding: 10px;
+  overflow-y: auto;
+  background-color: #fff;
+  border-right: 1px solid #ddd;
+}
+
+/* Styling for the right window */
+.rightWindow {
+  grid-area: rightSidebar;
+  padding: 10px;
+  overflow-y: auto;
+  background-color: #fff;
+  border-left: 1px solid #ddd;
+}
+
 /* Footer styling */
 .footer {
   grid-area: footer;
@@ -176,6 +214,14 @@ grid-area: header;
   background-color: rgb(227, 222, 130);
   border-top: 1px solid rgb(150, 150, 237);
   text-align: center;
+}
+
+/* Utility box styling */
+.utilityBox {
+  padding: 10px;
+  background-color: rgb(227, 222, 130); /* Example background color */
+  border: 1px solid rgb(150, 150, 237); /* Example border */
+  margin: 10px;
 }
 
 /* Responsive styles for smaller screens */
@@ -194,16 +240,16 @@ grid-area: header;
 
 .pagination-container {
   display: flex;
-  align-items: left;
-  justify-content: left;
-  margin-top: 10px;
+  align-items: center;
+  justify-content: center;
+  margin-top: 20px;
 }
 
 .pagination-button {
   background-color: #007bff;
   color: white;
   border: none;
-  padding: 6px 15px;
+  padding: 10px 15px;
   margin: 0 5px;
   cursor: pointer;
   font-size: 12px;
@@ -250,6 +296,17 @@ grid-area: header;
   transform-origin: center;
   background-size: 300%;
   pointer-events: none; /* Ensures the magnifier doesn't interfere with mouse events */
+}
+
+/* used for list sorting */
+.sort-container {
+  margin-top: 20px;
+  display: flex;
+  align-items: center;
+}
+
+.sort-container input[type="checkbox"] {
+  margin-right: 10px;
 }
 
 .refresh-button {
