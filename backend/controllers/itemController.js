@@ -116,24 +116,20 @@ const updateItem = async (req,res) => {
     res.status(200).json(item)
 }
 
-const searchItem = async (req, res) => {
-    const { searchText } = req.query;
-    const upperCaseSearchText = searchText.toUpperCase();
-
+// search items by masterCode
+const searchItemsByMasterCode = async (req, res) => {
+    const { masterCode, page = 1, limit = 50 } = req.query;
     try {
-        const item = await Item.findOne({
-            $or: [
-                { masterCode: upperCaseSearchText },
-                { oldCode: upperCaseSearchText },
-                { sku: upperCaseSearchText }
-            ]
+        const items = await Item.find({ masterCode: masterCode.toUpperCase() })
+            .sort({ masterCode: 1, oldCode: 1, sku: 1 })
+            .skip((page - 1) * limit)
+            .limit(Number(limit));
+        const totalItems = await Item.countDocuments({ masterCode: masterCode.toUpperCase() });
+        res.status(200).json({
+            items,
+            currentPage: Number(page),
+            totalPages: Math.ceil(totalItems / limit),
         });
-
-        if (!item) {
-            return res.status(404).json({ message: 'Your text was not found' });
-        }
-
-        res.status(200).json({ message: 'Text was found', item });
     } catch (error) {
         res.status(500).json({ error: 'Internal Server Error' });
     }
@@ -145,5 +141,5 @@ module.exports = {
     createItem,
     deleteItem,
     updateItem,
-    searchItem
+    searchItemsByMasterCode
 }

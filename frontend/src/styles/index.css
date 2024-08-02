@@ -88,13 +88,13 @@ grid-area: header;
 
 .contentUtility .contentLeft, .contentRight {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   justify-content: flex-start;
 }
 
 .contentUtility {
   grid-area: content;
-  width: 10%;
+  width: 7%;
   flex-direction: column;
   justify-content: left;
   padding: 1px;
@@ -106,6 +106,7 @@ grid-area: header;
   width: 50%;
   flex-direction: column;
   padding: 1px;
+
 }
 
 .contentRight {
@@ -128,7 +129,9 @@ grid-area: header;
   justify-content: space-around;
   padding: 6px;
   font-weight: bold;
-  background-color: #85a1c0;
+  background-color: #6daef897;
+  border-style: groove;
+  border-color: rgba(132, 193, 197, 0.966);
  
 }
 

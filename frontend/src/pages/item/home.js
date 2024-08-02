@@ -6,6 +6,7 @@ import debounce from 'lodash.debounce';
 const Home = () => {
     const [items, setItems] = useState([]);
     const [selectedItem, setSelectedItem] = useState(null);
+    const [filteredItems, setFilteredItems] = useState([]);
     const [currentMasterCode, setCurrentMasterCode] = useState(null);
     const [currentFileLocation, setFileLocation] = useState('');
     const [currentSku, setSku] = useState('');
@@ -29,6 +30,7 @@ const Home = () => {
             }
             const thisJson = await response.json();
             setItems(thisJson.items);
+            setFilteredItems(thisJson.items); // Initialize filtered items
             setCurrentPage(thisJson.currentPage);
             setTotalPages(thisJson.totalPages);
             if (thisJson.items.length > 0) {
@@ -123,8 +125,45 @@ const Home = () => {
         newTab.document.title = title;
     }, []);
 
-    const handleSearchChange = (e) => {
-        setSearchText(e.target.value);
+    //When Enter Key is pressed on the searchbar
+    const handleKeyDown = (e) => {
+        if (e.key === 'Enter') {
+            handleSearchSubmit();
+        }
+    };
+
+    const handleSearchSubmit = useCallback(() => {
+        if (searchText.trim() !== '') {
+            // Call the backend search route
+            fetch(`/acha-kvell/items/search?masterCode=${searchText}`)
+                .then(response => response.json())
+                .then(data => {
+                    setItems(data.items);
+                    setCurrentPage(1);
+                    setTotalPages(Math.ceil(data.items.length / itemsPerPage));
+                })
+                .catch(error => console.error('Error during search:', error));
+        }
+    }, [searchText, itemsPerPage]);
+
+    const handleSearchChange = async (e) => {
+        const searchValue = e.target.value;
+        setSearchText(searchValue);
+    
+        if (searchValue === '') {
+            setFilteredItems(items); // Reset to original items if search text is cleared
+        } else {
+            try {
+                const response = await fetch(`/acha-kvell/item/search?masterCode=${searchValue}`);
+                if (!response.ok) {
+                    throw new Error('Failed to fetch search results');
+                }
+                const thisJson = await response.json();
+                setFilteredItems(thisJson.items);
+            } catch (error) {
+                console.error('Error fetching search results:', error);
+            }
+        }
         setCurrentPage(1); // Reset to first page on new search
     };
 
@@ -142,6 +181,7 @@ const Home = () => {
         };
     }, [isMouseOver, dynamicMessage, title, handleDoubleClick]);
 
+    
     return (
         <div className={"content"}>
             <div className = "contentUtilty">
@@ -155,12 +195,14 @@ const Home = () => {
                             placeholder="Search..."
                             value={searchText}
                             onChange={handleSearchChange}
+                            onKeyDown={handleKeyDown}
+                            style={{ width: '200px' }}
                         />
                     </div>
                     <div></div>
                     <div>
-                    <button className="pagination-button" onClick={() => goToPage(1)}>First</button>
-                    <button className="pagination-button" onClick={previousPage}>Previous</button>
+                    <button className="pagination-button" onClick={() => goToPage(1)}>{'<<'}</button>
+                    <button className="pagination-button" onClick={previousPage}>{'<'}</button>
                     <input
                         type="number"
                         className="pagination-input"
@@ -169,8 +211,8 @@ const Home = () => {
                         max={totalPages}
                         onChange={(e) => goToPage(Number(e.target.value))}
                     />
-                    <button className="pagination-button" onClick={nextPage}>Next</button>
-                    <button className="pagination-button" onClick={() => goToPage(totalPages)}>Last</button>
+                    <button className="pagination-button" onClick={nextPage}>{'>'}</button>
+                    <button className="pagination-button" onClick={() => goToPage(totalPages)}>{'>>'}</button>
                     </div>
                     <div classname ={"rowsPerPage-dropdown"}>
                         <label>Rows PP</label>
@@ -190,7 +232,7 @@ const Home = () => {
                     <div>Stock Qty</div>
                 </div>
                 <div className={"scrollable"}>
-                    {items.map((item, index) => (
+                    {filteredItems.map((item, index) => (
                         <div
                             key={item.sku}
                             className={`rowList ${selectedRow === item.sku ? 'selected' : ''}`}

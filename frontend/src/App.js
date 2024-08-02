@@ -3,7 +3,6 @@ import {BrowserRouter, Routes, Route } from 'react-router-dom'
 
 //pages and components
 import Logobar from './components/Logobar';
-//import Sidebar from './components/lSidebar';
 import Home from './pages/item/home';
 
 
