@@ -41,7 +41,7 @@ const getItem = async (req, res) => {
 
         // items is an array, so we check its length
         if (items.length === 0) {
-            return res.status(404).json({ error: 'Item not found' });
+            return res.status(404).json({ error: 'Single Item not found' });
         }
 
         const item = items[0]; // Get the first item from the array
@@ -96,7 +96,7 @@ const deleteItem = async (req, res) => {
     if  (!mongoose.Types.ObjectId.isValid(id)) {
         return res.status(404).json({error: "no such item"})
     }
-    const item = await Item.findOneAndDelete({_id: id})    
+    const item = await item.findOneAndDelete({_id: id})    
     if(!item) {
         return res.status(400).json({error: "Item to delete not found"})
     }
@@ -107,7 +107,7 @@ const deleteItem = async (req, res) => {
 const updateItem = async (req,res) => {
     const {id} = req.params
 
-    const item = await Item.findOneAndUpdate({_id: id}, {
+    const item = await item.findOneAndUpdate({_id: id}, {
         ...req.body
     })
     if (!item) {
@@ -118,19 +118,18 @@ const updateItem = async (req,res) => {
 
 // search items by masterCode
 const searchItemsByMasterCode = async (req, res) => {
-    const { masterCode, page = 1, limit = 50 } = req.query;
+    const { reqmasterCode } = req.query; // Expecting the masterCode as a query parameter
+    if (!reqmasterCode) {
+        return res.status(400).json({ error: 'masterCode query parameter is required' });
+    }
     try {
-        const items = await Item.find({ masterCode: masterCode.toUpperCase() })
-            .sort({ masterCode: 1, oldCode: 1, sku: 1 })
-            .skip((page - 1) * limit)
-            .limit(Number(limit));
-        const totalItems = await Item.countDocuments({ masterCode: masterCode.toUpperCase() });
-        res.status(200).json({
-            items,
-            currentPage: Number(page),
-            totalPages: Math.ceil(totalItems / limit),
-        });
+        const items = await Item.find({ masterCode: reqmasterCode });
+        if (items.length === 0) {
+            return res.status(404).json({ message: 'No items found with the given masterCode' });
+        }
+        res.status(200).json({ items });
     } catch (error) {
+        console.error('Error fetching items by masterCode:', error);
         res.status(500).json({ error: 'Internal Server Error' });
     }
 };

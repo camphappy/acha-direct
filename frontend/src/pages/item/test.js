@@ -1,12 +1,13 @@
-import React, { useEffect, useState, useRef, useCallback } from 'react';
+import React, { useEffect, useState, useRef, useCallback} from 'react';
 import debounce from 'lodash.debounce';
 
 const Home = () => {
     const [items, setItems] = useState([]);
     const [selectedItem, setSelectedItem] = useState(null);
+    const [filteredItems, setFilteredItems] = useState([]);
     const [currentMasterCode, setCurrentMasterCode] = useState(null);
     const [currentFileLocation, setFileLocation] = useState('');
-    const [currentSku, setSku] = useState(null);
+    const [currentSku, setSku] = useState('');
     const [imageExists, setImageExists] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
@@ -16,24 +17,31 @@ const Home = () => {
     const [isMouseOver, setIsMouseOver] = useState(false); // Track mouse position
     const [dynamicMessage, setDynamicMessage] = useState('');
     const [title, setTitle] = useState('');
+    const [searchText, setSearchText] = useState(''); // Search text state
+    const [isSearching, setIsSearching] = useState(false); // Track if a search is active
     const magnifierRef = useRef(null);
     const containerRef = useRef(null);
 
-    const fetchItems = useCallback(async (page = 1, limit = itemsPerPage) => {
+    const fetchItems = useCallback(async (page = 1, limit = itemsPerPage, searchValue = '') => {
         try {
-            const response = await fetch(`/acha-kvell/item?page=${page}&limit=${limit}`);
+            let url = `/acha-kvell/item?page=${page}&limit=${limit}`;
+            if (searchValue.trim() !== '') {
+                url = `/acha-kvell/itemsSearch?masterCode=${searchValue}&page=${page}&limit=${limit}`;
+            }
+            const response = await fetch(url);
             if (!response.ok) {
                 throw new Error('Failed to fetch items');
             }
             const thisJson = await response.json();
             setItems(thisJson.items);
+            setFilteredItems(thisJson.items); // Initialize filtered items
             setCurrentPage(thisJson.currentPage);
             setTotalPages(thisJson.totalPages);
             if (thisJson.items.length > 0) {
                 handleRowClick(thisJson.items[0].sku);
                 setCurrentMasterCode(thisJson.items[0].masterCode);
                 setSku(thisJson.items[0].sku);
-                setSelectedRow(thisJson.items[0].sku);
+                setSelectedRow(currentSku);
             }
         } catch (error) {
             console.error('Error fetching items:', error);
@@ -53,7 +61,7 @@ const Home = () => {
             setSku(thisJson.sku);
             setFileLocation(thisJson.fileLocation);
             setImageExists(thisJson.imageExists);
-            setSelectedRow(currentSku); // Update the selectedRow state with the clicked sku
+            setSelectedRow(currentSku); // Update the selectedRow state with the clicked sku   
         } catch (error) {
             console.error('Error fetching item details:', error);
         }
@@ -74,19 +82,19 @@ const Home = () => {
 
     const nextPage = debounce(() => {
         if (currentPage < totalPages) {
-            handleRowClick(currentMasterCode);
+            handleRowClick(currentMasterCode,)
             setCurrentPage(currentPage + 1);
         }
     }, 300);
 
     useEffect(() => {
-        fetchItems(currentPage);
-    }, [currentPage, fetchItems]);
+        fetchItems(currentPage, itemsPerPage, isSearching ? searchText : '');
+    }, [currentPage, itemsPerPage, fetchItems, isSearching, searchText]);
 
     const handleItemsPerPageChange = (e) => {
         const newItemsPerPage = parseInt(e.target.value, 10);
         setItemsPerPage(newItemsPerPage);
-        fetchItems(currentPage, newItemsPerPage); // Fetch items based on the new itemsPerPage value
+        fetchItems(currentPage, newItemsPerPage, isSearching ? searchText : ''); // Fetch items based on the new itemsPerPage value
     };
 
     const handleMouseMove = (e) => {
@@ -119,135 +127,90 @@ const Home = () => {
         newTab.document.title = title;
     }, []);
 
-    useEffect(() => {
-        const handleKeyDown = (event) => {
-            if (event.key === 'Enter' && isMouseOver) {
-                handleDoubleClick(dynamicMessage, title);
+    const handleSearchSubmit = useCallback(async (e) => {
+        e.preventDefault();
+        if (searchText.trim() !== '') {
+            setIsSearching(true);
+            try {
+                const response = await fetch(`/acha-kvell/itemsSearch?masterCode=${searchText}`);
+                if (!response.ok) {
+                    throw new Error('Failed to fetch items');
+                }
+                const thisJson = await response.json();
+                setItems(thisJson.items);
+                setFilteredItems(thisJson.items); // Initialize filtered items
+                setCurrentPage(thisJson.currentPage);
+                setTotalPages(thisJson.totalPages);
+                if (thisJson.items.length > 0) {
+                    handleRowClick(thisJson.items[0].sku);
+                    setCurrentMasterCode(thisJson.items[0].masterCode);
+                    setSku(thisJson.items[0].sku);
+                    setSelectedRow(currentSku);
+                }
+            } catch (error) {
+                console.error('Error fetching items:', error);
             }
-        };
+        } else {
+            setIsSearching(false);
+            fetchItems(currentPage, itemsPerPage); // Fetch all items if search text is empty
+        }
+    }, [itemsPerPage, searchText, fetchItems]);
 
-        document.addEventListener('keydown', handleKeyDown);
+} else if (search) {
+    window.alert('No data found');
+}
 
-        return () => {
-            document.removeEventListener('keydown', handleKeyDown);
-        };
-    }, [isMouseOver, dynamicMessage, title, handleDoubleClick]);
+    const handleSearchChange = (e) => {
+        setSearchText(e.target.value);
+    };
 
     return (
         <div className={"content"}>
-            <div className={"contentLeft"}>
-                <div className="pagination-container"> {/* Existing pagination and item list */}
-                    <button className="pagination-button" onClick={() => goToPage(1)}>First</button>
-                    <button className="pagination-button" onClick={previousPage}>Previous</button>
-                    <input
-                        type="number"
-                        className="pagination-input"
-                        value={currentPage}
-                        min="1"
-                        max={totalPages}
-                        onChange={(e) => goToPage(Number(e.target.value))}
-                    />
-                    <button className="pagination-button" onClick={nextPage}>Next</button>
-                    <button className="pagination-button" onClick={() => goToPage(totalPages)}>Last</button>
-                    <div>
-                        <label>Rows PP</label><br />
-                        <select value={itemsPerPage} onChange={handleItemsPerPageChange}>
-                            <option value="25">25</option>
-                            <option value="50">50</option>
-                            <option value="75">75</option>
-                            <option value="100">100</option>
-                        </select>
-                    </div>
-                </div>
-                <div className={"menuField"}>
-                    <div>Master Code</div>
-                    <div>Old Code</div>
-                    <div>SKU</div>
-                    <div>Stock Qty</div>
-                </div>
-                <div className={"scrollable"}>
-                    {items.map((item, index) => (
-                        <div
-                            key={item.sku}
-                            className={`rowList ${selectedRow === item.sku ? 'selected' : ''}`}
-                            onClick={() => handleRowClick(item.sku)}
-                            onMouseEnter={() => setHoveredRow(item.sku)}
-                            onMouseLeave={() => setHoveredRow(null)}
-                            style={{
-                                backgroundColor: selectedRow === item.sku ? 'lightblue' : hoveredRow === item.sku ? 'light' : 'white'
-                            }}> {/* Apply background color based on selection */}
-                            <div
-                                onMouseEnter={() => {
-                                    setIsMouseOver(true)
-                                    setDynamicMessage('masterCode was double clicked')
-                                    setTitle(item.masterCode)
-                                }}
-                                onMouseLeave={() => setIsMouseOver(false)}
-                                onDoubleClick={() => handleDoubleClick(dynamicMessage, `masterCode:${item.masterCode}`)}>
-                                {item.masterCode}
-                            </div>
-                            <div
-                                onMouseEnter={() => {
-                                    setIsMouseOver(true)
-                                    setDynamicMessage('oldCode was double clicked')
-                                }}
-                                onMouseLeave={() => setIsMouseOver(false)}
-                                onDoubleClick={() => handleDoubleClick(dynamicMessage, `oldCode:${item.oldCode}`)}>
-                                {item.oldCode}
-                            </div>
-                            <div
-                                onMouseEnter={() => {
-                                    setIsMouseOver(true)
-                                    setDynamicMessage('sku was double clicked')
-                                }}
-                                onMouseLeave={() => setIsMouseOver(false)}
-                                onDoubleClick={() => handleDoubleClick(dynamicMessage, `sku:${item.sku}`)}>
-                                {item.sku}
-                            </div>
-                            <div>{item.selectedRow}</div>
-                            <div
-                                onMouseEnter={() => {
-                                    setIsMouseOver(true)
-                                    setDynamicMessage('Qty on hand details')
-                                }}
-                                onMouseLeave={() => setIsMouseOver(false)}
-                                onDoubleClick={() => handleDoubleClick(dynamicMessage, `Qty breakdown.`)}>
-                                {item.qtyOnHand}
-                            </div>
-                        </div>
-                    ))}
-                </div>
+            <div className="contentUtility">
+                <p><br /> Utility Box Content. This is a sample text.</p>
             </div>
-
-            {imageExists && (
-                <div className="contentRight">
-                    {/* Display the selected item JSON */}
-                    {selectedItem && <pre>{JSON.stringify(selectedItem, null, 2)}</pre>}
+            <div className={"contentLeft"}>
+                <div className="pagination-container">
                     <div>
-                        {currentMasterCode && `Current Master Code: ${currentFileLocation}, ${currentMasterCode}`}
-                    </div>
-                    <div>
-                        {imageExists ? (
-                            <div
-                                className="container"
-                                onMouseMove={handleMouseMove}
-                                onMouseLeave={handleMouseLeave}
-                                ref={containerRef}>
+                        <form onSubmit={handleSearchSubmit}>
+                            <input
+                                type="text"
+                                placeholder="Search..."
+                                value={searchText}
+                                onChange={handleSearchChange}
+                                style={{ width: '200px' }}
+                            />
+                            <button type="submit" style={{ position: 'relative', padding: '0', border: 'none', background: 'none' }}>
                                 <img
-                                    src={(currentFileLocation)}
-                                    alt={`Master Code not loaded ${currentFileLocation}`}
+                                    src="/pics/magnifier.png"
+                                    alt="Search"
+                                    style={{
+                                        position: 'absolute',
+                                        right: '10px',
+                                        top: '40%',
+                                        transform: 'translateY(-75%)',
+                                        width: '15px',
+                                        height: '15px'
+                                    }}
                                 />
-                                <div className="magnifier" ref={magnifierRef}></div>
-                                {`Current Master Code: ${currentFileLocation}, ${currentMasterCode}`}
-                            </div>
-                        ) : (
-                            'Image not found'
-                        )}
+                            </button>
+                        </form>
                     </div>
-                </div>
-            )}
-        </div>
-    );
-};
-
-export default Home;
+                    <div></div>
+                    <div>
+                        <button className="pagination-button" onClick={() => goToPage(1)}>{'<<'}</button>
+                        <button className="pagination-button" onClick={previousPage}>{'<'}</button>
+                        <input
+                            type="number"
+                            className="pagination-input"
+                            value={currentPage}
+                            min="1"
+                            max={totalPages}
+                            onChange={(e) => goToPage(Number(e.target.value))}
+                        />
+                        <button className="pagination-button" onClick={nextPage}>{'>'}</button>
+                        <button className="pagination-button" onClick={() => goToPage(totalPages)}>{'>>'}</button>
+                    </div>
+                    <div className="rowsPerPage-dropdown">
+                        <label>Rows PP</label>
+                        <select value={itemsPerPage} on

@@ -129,10 +129,9 @@ grid-area: header;
   justify-content: space-around;
   padding: 6px;
   font-weight: bold;
-  background-color: #6daef897;
+  background-color: #6daef82a;
   border-style: groove;
-  border-color: rgba(132, 193, 197, 0.966);
- 
+  border-color: #afc6e0c2;
 }
 
 .menuField div {
@@ -267,4 +266,10 @@ grid-area: header;
   border: 1px solid #ccc;
   border-radius: 3px;
   top: 30px
+}
+
+.search-container {
+  align-items: center;
+  position: relative;
+  display: inline-block;
 }

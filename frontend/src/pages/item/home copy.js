@@ -20,18 +20,11 @@ const Home = () => {
     const [dynamicMessage, setDynamicMessage] = useState('');
     const [title, setTitle] = useState('');
     const [searchText, setSearchText] = useState(''); // Search text state
-    const [isSearching, setIsSearching] = useState(false); // Track if a search is active
     const magnifierRef = useRef(null);
     const containerRef = useRef(null);
-
-    const fetchItems = useCallback(async (page = 1, limit = itemsPerPage, searchValue = '') => {
+    const fetchItems = useCallback(async (page = 1, limit = itemsPerPage) => {
         try {
-            let url = `/acha-kvell/item?page=${page}&limit=${limit}`;
-            if (searchValue.trim() !== '') {
-                //url = `/acha-kvell/itemsSearch?masterCode=${searchValue}&page=${page}&limit=${limit}`;
-                url = `/acha-kvell/itemSpecial/search?reqmasterCode=${searchValue}&page=${page}&limit=${limit}`;
-            }
-            const response = await fetch(url);
+            const response = await fetch(`/acha-kvell/item?page=${page}&limit=${limit}`);
             if (!response.ok) {
                 throw new Error('Failed to fetch items');
             }
@@ -90,15 +83,16 @@ const Home = () => {
             setCurrentPage(currentPage + 1);
         }
     }, 300);
-
+   
     useEffect(() => {
-        fetchItems(currentPage, itemsPerPage, isSearching ? searchText : '');
-    }, [currentPage, itemsPerPage, fetchItems, isSearching, searchText]);
+        fetchItems(currentPage);
+    }, [currentPage, fetchItems]);
 
     const handleItemsPerPageChange = (e) => {
         const newItemsPerPage = parseInt(e.target.value, 10);
         setItemsPerPage(newItemsPerPage);
-        fetchItems(currentPage, newItemsPerPage, isSearching ? searchText : ''); // Fetch items based on the new itemsPerPage value
+        fetchItems(currentPage, newItemsPerPage); // Fetch items based on the new itemsPerPage value
+    
     };
 
     const handleMouseMove = (e) => {
@@ -131,51 +125,30 @@ const Home = () => {
         newTab.document.title = title;
     }, []);
 
-    /*When Enter Key is pressed on the searchbar
+    const handleSearchSubmit = useCallback(() => {
+        console.log('Search submit triggered'); // Debugging log
+        if (searchText.trim() !== '') {
+            // Call the backend search route
+            fetch(`/acha-kvell/items/search?masterCode=${searchText}`)
+                .then(response => response.json())
+                .then(data => {
+                    setItems(data.items);
+                    setCurrentPage(1);
+                    setTotalPages(Math.ceil(data.items.length / itemsPerPage));
+                })
+                .catch(error => console.error('Error during search:', error));
+        }
+    }, [searchText, itemsPerPage]);
+
+    const handleSearchChange = async (e) => {
+        setSearchText(e.target.value);
+    };
+
+     //When Enter Key is pressed on the searchbar
     const handleKeyDown = (e) => {
         if (e.key === 'Enter') {
             handleSearchSubmit();
         }
-    };*/
-   
-    const handleSearchSubmit = useCallback(async (e) => {
-        e.preventDefault();
-        if (searchText.trim() !== '') {
-            setIsSearching(true);
-            try {
-                const response = await fetch(`/acha-kvell/itemSpecial/search?reqmasterCode=${searchText}`);
-                if (!response.ok) {
-                    throw new Error('Failed to fetch items');
-                }
-                const thisJson = await response.json();
-                // setItems(thisJson.items);
-                setFilteredItems(thisJson.items); // Initialize filtered items
-                setItems(thisJson.items);
-                setCurrentPage(1);
-                setTotalPages(Math.ceil(thisJson.items.length / itemsPerPage)); // Update the total pages based on filtered results
-                if (thisJson.items.length > 0) {
-                    handleRowClick(thisJson.items[0].sku);
-                    setCurrentMasterCode(thisJson.items[0].masterCode);
-                    setSku(thisJson.items[0].sku);
-                    setSelectedRow(currentSku);
-                }
-            } catch (error) {
-                console.error('Error fetching items:', error);
-            }
-        } else {
-            setIsSearching(false);
-            fetchItems(currentPage, itemsPerPage); // Fetch all items if search text is empty
-            window.alert('Search data not found.');        
-        }
-    }, [itemsPerPage, searchText, fetchItems]);
-
-
-    
-    
-    const handleSearchChange = (e) => {
-        const searchValue = e.target.value;
-        setSearchText(searchValue);
-        console.log('Search text changed:', searchValue);
     };
 
     useEffect(() => {
@@ -200,32 +173,34 @@ const Home = () => {
             </div>
             <div className={"contentLeft"}>
                 <div className="pagination-container"> {/* Existing pagination and item list */}
-                    <div>
-                    <form onSubmit={handleSearchSubmit}>
-                            <input
-                                type="text"
-                                placeholder="Search..."
-                                value={searchText}
-                                onChange={handleSearchChange}
-                                style={{ width: '200px' }}
-                            />
-                            <button type="submit" style={{ position: 'relative', padding: '0', border: 'none', background: 'none' }}>
-                                <img
-                                    src="/pics/magnifier.png"
-                                    alt="Search"
-                                    style={{
-                                        position: 'absolute',
-                                        right: '10px',
-                                        top: '40%',
-                                        transform: 'translateY(-75%)',
-                                        width: '15px',
-                                        height: '15px'
-                                    }}
-                                />
-                            </button>
-                        </form>
+                    <div className="search-container">
+                        <input
+                            type="text"
+                            placeholder="Search..."
+                            value={searchText}
+                            onChange={handleSearchChange}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                    handleSearch();
+                                }
+                            }}
+                            style={{ width: '200px', height: '15px', paddingRight: '20px' }}
+                        />
+                        <img
+                            src="/pics/magnifier.png"
+                            alt="Search"
+                            onClick={handleSearchSubmit}
+                            style={{
+                                position: 'absolute',
+                                right: '10px',
+                                top: '30%',
+                                transform: 'translateY(-40%)',
+                                cursor: 'pointer',
+                                width: '10px',
+                                height: '10px'
+                            }}
+                        />
                     </div>
-                    <div></div>
                     <div>
                     <button className="pagination-button" onClick={() => goToPage(1)}>{'<<'}</button>
                     <button className="pagination-button" onClick={previousPage}>{'<'}</button>
