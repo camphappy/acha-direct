@@ -119,15 +119,27 @@ const updateItem = async (req,res) => {
 // search items by masterCode
 const searchItemsByMasterCode = async (req, res) => {
     const { reqmasterCode } = req.query; // Expecting the masterCode as a query parameter
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 50;
     if (!reqmasterCode) {
         return res.status(400).json({ error: 'masterCode query parameter is required' });
     }
     try {
-        const items = await Item.find({ masterCode: reqmasterCode });
+        const items = await Item.find({ masterCode: reqmasterCode })
+        .skip((page -1) * limit)
+        .limit(limit);
+
+        const totalItems = await Item.countDocuments({ masterCode: reqmasterCode });
+        const totalPages = Math.ceil(totalItems / limit);
+
         if (items.length === 0) {
             return res.status(404).json({ message: 'No items found with the given masterCode' });
         }
-        res.status(200).json({ items });
+        res.status(200).json({
+            items,
+            currentPage: page,
+            totalPages
+        });
     } catch (error) {
         console.error('Error fetching items by masterCode:', error);
         res.status(500).json({ error: 'Internal Server Error' });

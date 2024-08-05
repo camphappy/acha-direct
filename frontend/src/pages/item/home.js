@@ -28,7 +28,6 @@ const Home = () => {
         try {
             let url = `/acha-kvell/item?page=${page}&limit=${limit}`;
             if (searchValue.trim() !== '') {
-                //url = `/acha-kvell/itemsSearch?masterCode=${searchValue}&page=${page}&limit=${limit}`;
                 url = `/acha-kvell/itemSpecial/search?reqmasterCode=${searchValue}&page=${page}&limit=${limit}`;
             }
             const response = await fetch(url);
@@ -38,13 +37,15 @@ const Home = () => {
             const thisJson = await response.json();
             setItems(thisJson.items);
             setFilteredItems(thisJson.items); // Initialize filtered items
-            setCurrentPage(thisJson.currentPage);
-            setTotalPages(thisJson.totalPages);
+            setCurrentPage(page);
+            setTotalPages(thisJson.totalPages || Math.ceil(thisJson.items.length / limit)); // Update total pages);
             if (thisJson.items.length > 0) {
                 handleRowClick(this.Json.items[0].sku);
                 setCurrentMasterCode(thisJson.items[0].masterCode);
                 setSku(thisJson.items[0].sku);
                 setSelectedRow(currentSku);
+            } else {
+                window.alert('No data found');
             }
         } catch (error) {
             console.error('Error fetching items:', error);
@@ -98,7 +99,11 @@ const Home = () => {
     const handleItemsPerPageChange = (e) => {
         const newItemsPerPage = parseInt(e.target.value, 10);
         setItemsPerPage(newItemsPerPage);
-        fetchItems(currentPage, newItemsPerPage, isSearching ? searchText : ''); // Fetch items based on the new itemsPerPage value
+        if (isSearching && searchText.trim() !== '') {
+            fetchItems(1, newItemsPerPage, searchText); // Fetch filtered items based on the new itemsPerPage value
+        } else {
+            fetchItems(1, newItemsPerPage); // Fetch all items based on the new itemsPerPage value
+        }
     };
 
     const handleMouseMove = (e) => {
@@ -130,52 +135,46 @@ const Home = () => {
         newTab.document.write(dynamicMessage);
         newTab.document.title = title;
     }, []);
-
-    /*When Enter Key is pressed on the searchbar
-    const handleKeyDown = (e) => {
-        if (e.key === 'Enter') {
-            handleSearchSubmit();
-        }
-    };*/
    
     const handleSearchSubmit = useCallback(async (e) => {
         e.preventDefault();
-        if (searchText.trim() !== '') {
-            setIsSearching(true);
-            try {
-                const response = await fetch(`/acha-kvell/itemSpecial/search?reqmasterCode=${searchText}`);
-                if (!response.ok) {
-                    throw new Error('Failed to fetch items');
-                }
-                const thisJson = await response.json();
-                // setItems(thisJson.items);
-                setFilteredItems(thisJson.items); // Initialize filtered items
-                setItems(thisJson.items);
-                setCurrentPage(1);
-                setTotalPages(Math.ceil(thisJson.items.length / itemsPerPage)); // Update the total pages based on filtered results
-                if (thisJson.items.length > 0) {
-                    handleRowClick(thisJson.items[0].sku);
-                    setCurrentMasterCode(thisJson.items[0].masterCode);
-                    setSku(thisJson.items[0].sku);
-                    setSelectedRow(currentSku);
-                }
-            } catch (error) {
-                console.error('Error fetching items:', error);
-            }
-        } else {
-            setIsSearching(false);
-            fetchItems(currentPage, itemsPerPage); // Fetch all items if search text is empty
-            window.alert('Search data not found.');        
+        if (searchText.trim() === '') {
+            window.alert('Enter data in Search field');
+            return;
         }
-    }, [itemsPerPage, searchText, fetchItems]);
-
-
-    
+        try {
+            const response = await fetch(`/acha-kvell/itemSpecial/search?reqmasterCode=${searchText}`);
+            if (response.status === 404) {
+                const data = await response.json();
+                window.alert(data.message);
+                return;
+            }
+            if (!response.ok) {
+                throw new Error('Failed to fetch items');
+            }
+            const thisJson = await response.json();
+            if (thisJson.items.length > 0) {
+            setIsSearching(true);
+            setFilteredItems(thisJson.items); // Initialize filtered items
+            setItems(thisJson.items);
+            setCurrentPage(1);
+            setTotalPages(Math.ceil(thisJson.items.length / itemsPerPage)); // Update the total pages based on filtered results
+                handleRowClick(thisJson.items[0].sku);
+                setCurrentMasterCode(thisJson.items[0].masterCode);
+                setSku(thisJson.items[0].sku);
+                setSelectedRow(currentSku);
+            } else {
+                window.alert('No data found')
+            }
+        }
+        catch (error) {
+                console.error('Error fetching items:', error);
+        }
+    }, [itemsPerPage, searchText]);
     
     const handleSearchChange = (e) => {
-        const searchValue = e.target.value;
-        setSearchText(searchValue);
-        console.log('Search text changed:', searchValue);
+        setSearchText(e.target.value);
+        console.log('Search text changed:', e.target.value);
     };
 
     useEffect(() => {
