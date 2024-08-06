@@ -1,5 +1,6 @@
 //Includes page listing.
 import React, { useEffect, useState, useRef, useCallback} from 'react';
+import useKeyPress from '../../components/useKeyPress'; // Adjust the path as necessary
 import debounce from 'lodash.debounce';
 
 
@@ -23,6 +24,10 @@ const Home = () => {
     const [isSearching, setIsSearching] = useState(false); // Track if a search is active
     const magnifierRef = useRef(null);
     const containerRef = useRef(null);
+    const downPress = useKeyPress("ArrowDown");
+    const upPress = useKeyPress("ArrowUp");
+    const [cursor, setCursor] = useState(0);
+
 
     const fetchItems = useCallback(async (page = 1, limit = itemsPerPage, searchValue = '') => {
         try {
@@ -40,7 +45,7 @@ const Home = () => {
             setCurrentPage(page);
             setTotalPages(thisJson.totalPages || Math.ceil(thisJson.items.length / limit)); // Update total pages);
             if (thisJson.items.length > 0) {
-                handleRowClick(this.Json.items[0].sku);
+                handleRowClick(thisJson.items[0].sku);
                 setCurrentMasterCode(thisJson.items[0].masterCode);
                 setSku(thisJson.items[0].sku);
                 setSelectedRow(currentSku);
@@ -191,7 +196,30 @@ const Home = () => {
         };
     }, [isMouseOver, dynamicMessage, title, handleDoubleClick]);
 
+    useEffect(() => {
+        if (filteredItems.length && downPress) {
+            setCursor(prevState => (prevState < filteredItems.length - 1 ? prevState + 1 : prevState));
+            const currentItem = filteredItems[cursor];
+            handleRowClick(currentItem.sku);
+        }
+    }, [downPress]);
     
+    useEffect(() => {
+        if (filteredItems.length && upPress) {
+            setCursor(prevState => (prevState > 0 ? prevState - 1 : prevState));
+            const currentItem = filteredItems[cursor];
+            handleRowClick(currentItem.sku);
+        }
+    }, [upPress]);
+    
+    useEffect(() => {
+        if (filteredItems.length) {
+            const currentItem = filteredItems[cursor];
+            handleRowClick(currentItem.sku);
+        }
+    }, [cursor]);
+
+
     return (
         <div className={"content"}>
             <div className = "contentUtilty">
@@ -239,7 +267,7 @@ const Home = () => {
                     <button className="pagination-button" onClick={nextPage}>{'>'}</button>
                     <button className="pagination-button" onClick={() => goToPage(totalPages)}>{'>>'}</button>
                     </div>
-                    <div classname ={"rowsPerPage-dropdown"}>
+                    <div className ={"rowsPerPage-dropdown"}>
                         <label>Rows PP</label>
                         <select value={itemsPerPage} onChange={handleItemsPerPageChange}>
                             <option value="25">25</option>
@@ -253,7 +281,8 @@ const Home = () => {
                     <div>Master Code</div>
                     <div>Old Code</div>
                     <div>SKU</div>
-                    <div></div>
+                    <div>Length</div>
+                    <div>Color</div>
                     <div>Stock Qty</div>
                 </div>
                 <div className={"scrollable"}>
@@ -268,6 +297,7 @@ const Home = () => {
                                 backgroundColor: selectedRow === item.sku ? 'lightblue' : hoveredRow === item.sku ? 'lightgrey' : 'white'
                                 }}> {/* Apply background color based on selection */}
                             <div
+                                onKey
                                 onMouseEnter={() => {
                                     setIsMouseOver(true)
                                     setDynamicMessage('masterCode was double clicked')
@@ -287,7 +317,7 @@ const Home = () => {
                                 {item.oldCode}
                             </div>
                             <div
-                            onMouseEnter={() => {
+                                onMouseEnter={() => {
                                 setIsMouseOver(true)
                                 setDynamicMessage('sku was double clicked')
                                 }}
@@ -295,7 +325,8 @@ const Home = () => {
                                 onDoubleClick={() => handleDoubleClick(dynamicMessage,`sku:${item.sku}`)}>
                                 {item.sku}
                             </div>
-                            <div>{item.selectedRow}</div>
+                            <div>{item.length}</div>
+                            <div>{item.color}</div>
                             <div
                                 onMouseEnter={() => {
                                     setIsMouseOver(true)

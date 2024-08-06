@@ -127,11 +127,12 @@ grid-area: header;
   font-family: sans-serif, Helvetica;
   display: flex;
   justify-content: space-around;
-  padding: 6px;
-  font-weight: bold;
-  background-color: #6daef82a;
+  padding: 5px;
+  font-size: 14px;
+  background-color: #6daef86c;
   border-style: groove;
-  border-color: #afc6e0c2;
+  border-color: #afc6e0e1;
+  border-width: thin;
 }
 
 .menuField div {
@@ -168,7 +169,13 @@ grid-area: header;
   font-size: 12px;
   background-color: #a1a0aa;
   text-align: left;
-  border-bottom: 2px solid #cfced1;
+  border-bottom: 2px solid #a1a0aa;
+}
+
+.rowsPerPage-dropdown {
+  flex: 1;
+  font-size: 12px;
+  text-align: left;
 }
 
 /* Footer styling */
@@ -235,8 +242,8 @@ grid-area: header;
 }
 
 .container img {
-  width: 100%;
-  height: 100%;
+  width: 90%;
+  height: 90%;
 }
 
 .magnifier {

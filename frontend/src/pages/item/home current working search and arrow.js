@@ -1,5 +1,6 @@
 //Includes page listing.
 import React, { useEffect, useState, useRef, useCallback} from 'react';
+import useKeyPress from '../../components/useKeyPress'; // Adjust the path as necessary
 import debounce from 'lodash.debounce';
 
 
@@ -20,24 +21,36 @@ const Home = () => {
     const [dynamicMessage, setDynamicMessage] = useState('');
     const [title, setTitle] = useState('');
     const [searchText, setSearchText] = useState(''); // Search text state
+    const [isSearching, setIsSearching] = useState(false); // Track if a search is active
     const magnifierRef = useRef(null);
     const containerRef = useRef(null);
-    const fetchItems = useCallback(async (page = 1, limit = itemsPerPage) => {
+    const downPress = useKeyPress("ArrowDown");
+    const upPress = useKeyPress("ArrowUp");
+    const [cursor, setCursor] = useState(0);
+
+
+    const fetchItems = useCallback(async (page = 1, limit = itemsPerPage, searchValue = '') => {
         try {
-            const response = await fetch(`/acha-kvell/item?page=${page}&limit=${limit}`);
+            let url = `/acha-kvell/item?page=${page}&limit=${limit}`;
+            if (searchValue.trim() !== '') {
+                url = `/acha-kvell/itemSpecial/search?reqmasterCode=${searchValue}&page=${page}&limit=${limit}`;
+            }
+            const response = await fetch(url);
             if (!response.ok) {
                 throw new Error('Failed to fetch items');
             }
             const thisJson = await response.json();
             setItems(thisJson.items);
             setFilteredItems(thisJson.items); // Initialize filtered items
-            setCurrentPage(thisJson.currentPage);
-            setTotalPages(thisJson.totalPages);
+            setCurrentPage(page);
+            setTotalPages(thisJson.totalPages || Math.ceil(thisJson.items.length / limit)); // Update total pages);
             if (thisJson.items.length > 0) {
-                handleRowClick(this.Json.items[0].sku);
+                handleRowClick(thisJson.items[0].sku);
                 setCurrentMasterCode(thisJson.items[0].masterCode);
                 setSku(thisJson.items[0].sku);
                 setSelectedRow(currentSku);
+            } else {
+                window.alert('No data found');
             }
         } catch (error) {
             console.error('Error fetching items:', error);
@@ -83,16 +96,19 @@ const Home = () => {
             setCurrentPage(currentPage + 1);
         }
     }, 300);
-   
+
     useEffect(() => {
-        fetchItems(currentPage);
-    }, [currentPage, fetchItems]);
+        fetchItems(currentPage, itemsPerPage, isSearching ? searchText : '');
+    }, [currentPage, itemsPerPage, fetchItems, isSearching, searchText]);
 
     const handleItemsPerPageChange = (e) => {
         const newItemsPerPage = parseInt(e.target.value, 10);
         setItemsPerPage(newItemsPerPage);
-        fetchItems(currentPage, newItemsPerPage); // Fetch items based on the new itemsPerPage value
-    
+        if (isSearching && searchText.trim() !== '') {
+            fetchItems(1, newItemsPerPage, searchText); // Fetch filtered items based on the new itemsPerPage value
+        } else {
+            fetchItems(1, newItemsPerPage); // Fetch all items based on the new itemsPerPage value
+        }
     };
 
     const handleMouseMove = (e) => {
@@ -124,31 +140,46 @@ const Home = () => {
         newTab.document.write(dynamicMessage);
         newTab.document.title = title;
     }, []);
-
-    const handleSearchSubmit = useCallback(() => {
-        console.log('Search submit triggered'); // Debugging log
-        if (searchText.trim() !== '') {
-            // Call the backend search route
-            fetch(`/acha-kvell/items/search?masterCode=${searchText}`)
-                .then(response => response.json())
-                .then(data => {
-                    setItems(data.items);
-                    setCurrentPage(1);
-                    setTotalPages(Math.ceil(data.items.length / itemsPerPage));
-                })
-                .catch(error => console.error('Error during search:', error));
+   
+    const handleSearchSubmit = useCallback(async (e) => {
+        e.preventDefault();
+        if (searchText.trim() === '') {
+            window.alert('Enter data in Search field');
+            return;
         }
-    }, [searchText, itemsPerPage]);
-
-    const handleSearchChange = async (e) => {
+        try {
+            const response = await fetch(`/acha-kvell/itemSpecial/search?reqmasterCode=${searchText}`);
+            if (response.status === 404) {
+                const data = await response.json();
+                window.alert(data.message);
+                return;
+            }
+            if (!response.ok) {
+                throw new Error('Failed to fetch items');
+            }
+            const thisJson = await response.json();
+            if (thisJson.items.length > 0) {
+            setIsSearching(true);
+            setFilteredItems(thisJson.items); // Initialize filtered items
+            setItems(thisJson.items);
+            setCurrentPage(1);
+            setTotalPages(Math.ceil(thisJson.items.length / itemsPerPage)); // Update the total pages based on filtered results
+                handleRowClick(thisJson.items[0].sku);
+                setCurrentMasterCode(thisJson.items[0].masterCode);
+                setSku(thisJson.items[0].sku);
+                setSelectedRow(currentSku);
+            } else {
+                window.alert('No data found')
+            }
+        }
+        catch (error) {
+                console.error('Error fetching items:', error);
+        }
+    }, [itemsPerPage, searchText]);
+    
+    const handleSearchChange = (e) => {
         setSearchText(e.target.value);
-    };
-
-     //When Enter Key is pressed on the searchbar
-    const handleKeyDown = (e) => {
-        if (e.key === 'Enter') {
-            handleSearchSubmit();
-        }
+        console.log('Search text changed:', e.target.value);
     };
 
     useEffect(() => {
@@ -165,7 +196,30 @@ const Home = () => {
         };
     }, [isMouseOver, dynamicMessage, title, handleDoubleClick]);
 
+    useEffect(() => {
+        if (filteredItems.length && downPress) {
+            setCursor(prevState => (prevState < filteredItems.length - 1 ? prevState + 1 : prevState));
+            const currentItem = filteredItems[cursor];
+            handleRowClick(currentItem.sku);
+        }
+    }, [downPress]);
     
+    useEffect(() => {
+        if (filteredItems.length && upPress) {
+            setCursor(prevState => (prevState > 0 ? prevState - 1 : prevState));
+            const currentItem = filteredItems[cursor];
+            handleRowClick(currentItem.sku);
+        }
+    }, [upPress]);
+    
+    useEffect(() => {
+        if (filteredItems.length) {
+            const currentItem = filteredItems[cursor];
+            handleRowClick(currentItem.sku);
+        }
+    }, [cursor]);
+
+
     return (
         <div className={"content"}>
             <div className = "contentUtilty">
@@ -173,34 +227,32 @@ const Home = () => {
             </div>
             <div className={"contentLeft"}>
                 <div className="pagination-container"> {/* Existing pagination and item list */}
-                    <div className="search-container">
-                        <input
-                            type="text"
-                            placeholder="Search..."
-                            value={searchText}
-                            onChange={handleSearchChange}
-                            onKeyDown={(e) => {
-                                if (e.key === 'Enter') {
-                                    handleSearch();
-                                }
-                            }}
-                            style={{ width: '200px', height: '15px', paddingRight: '20px' }}
-                        />
-                        <img
-                            src="/pics/magnifier.png"
-                            alt="Search"
-                            onClick={handleSearchSubmit}
-                            style={{
-                                position: 'absolute',
-                                right: '10px',
-                                top: '30%',
-                                transform: 'translateY(-40%)',
-                                cursor: 'pointer',
-                                width: '10px',
-                                height: '10px'
-                            }}
-                        />
+                    <div>
+                    <form onSubmit={handleSearchSubmit}>
+                            <input
+                                type="text"
+                                placeholder="Search..."
+                                value={searchText}
+                                onChange={handleSearchChange}
+                                style={{ width: '200px' }}
+                            />
+                            <button type="submit" style={{ position: 'relative', padding: '0', border: 'none', background: 'none' }}>
+                                <img
+                                    src="/pics/magnifier.png"
+                                    alt="Search"
+                                    style={{
+                                        position: 'absolute',
+                                        right: '10px',
+                                        top: '40%',
+                                        transform: 'translateY(-75%)',
+                                        width: '15px',
+                                        height: '15px'
+                                    }}
+                                />
+                            </button>
+                        </form>
                     </div>
+                    <div></div>
                     <div>
                     <button className="pagination-button" onClick={() => goToPage(1)}>{'<<'}</button>
                     <button className="pagination-button" onClick={previousPage}>{'<'}</button>
@@ -215,7 +267,7 @@ const Home = () => {
                     <button className="pagination-button" onClick={nextPage}>{'>'}</button>
                     <button className="pagination-button" onClick={() => goToPage(totalPages)}>{'>>'}</button>
                     </div>
-                    <div classname ={"rowsPerPage-dropdown"}>
+                    <div className ={"rowsPerPage-dropdown"}>
                         <label>Rows PP</label>
                         <select value={itemsPerPage} onChange={handleItemsPerPageChange}>
                             <option value="25">25</option>
@@ -229,7 +281,8 @@ const Home = () => {
                     <div>Master Code</div>
                     <div>Old Code</div>
                     <div>SKU</div>
-                    <div></div>
+                    <div>Length</div>
+                    <div>Color</div>
                     <div>Stock Qty</div>
                 </div>
                 <div className={"scrollable"}>
@@ -244,6 +297,7 @@ const Home = () => {
                                 backgroundColor: selectedRow === item.sku ? 'lightblue' : hoveredRow === item.sku ? 'lightgrey' : 'white'
                                 }}> {/* Apply background color based on selection */}
                             <div
+                                onKey
                                 onMouseEnter={() => {
                                     setIsMouseOver(true)
                                     setDynamicMessage('masterCode was double clicked')
@@ -263,7 +317,7 @@ const Home = () => {
                                 {item.oldCode}
                             </div>
                             <div
-                            onMouseEnter={() => {
+                                onMouseEnter={() => {
                                 setIsMouseOver(true)
                                 setDynamicMessage('sku was double clicked')
                                 }}
@@ -271,7 +325,8 @@ const Home = () => {
                                 onDoubleClick={() => handleDoubleClick(dynamicMessage,`sku:${item.sku}`)}>
                                 {item.sku}
                             </div>
-                            <div>{item.selectedRow}</div>
+                            <div>{item.length}</div>
+                            <div>{item.color}</div>
                             <div
                                 onMouseEnter={() => {
                                     setIsMouseOver(true)
