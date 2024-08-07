@@ -1,0 +1,24 @@
+<h4 class="modal-title" id="diagShipToTitle">Shipping Address</h4>
+            </div>
+            <div class="modal-body">
+               <p>Select the appropriate <b>Ship To</b> account number in the drop-down menu below and enter your e-mail address</p>
+               <form role="form" data-toggle="validator" id="shipToForm" action="javascript:void(0);">
+                  <div class="form-group">
+                     <label for="shipTo">Ship To:</label>
+                     <select id="shipTo" class="form-control" >
+                        <option value="">Please Select</option>
+                        {{#shipCust}}
+                        <option {{htmlSelected}} value="{{custNumber}}">{{custNumber}} - {{custName}}, {{addr1}}, {{city}} {{state}}</option>
+                        {{/shipCust}}
+                     </select>
+                  </div>
+
+                  {{#shipCust}}
+                  {{#if htmlSelected}}
+                  <div id="shipToInfo" class="well">
+                     <div id="shipToName">{{custName}}</div>
+                     <div id="shipToAddr1">{{addr1}}</div>
+                     <div id="shipToAddr2">{{addr2}}</div>
+                     <div id="shipToAddr3">{{addr3}}</div>
+                     <div id="shipToCityStateZip">{{city}} {{state}} {{zipcode}}</div>
+                  </div>

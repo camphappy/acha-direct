@@ -70,7 +70,10 @@ const Home = () => {
                 setSku(thisJson.sku);
                 setFileLocation(thisJson.fileLocation);
                 setImageExists(thisJson.imageExists);
-                setSelectedRow(currentSku); // Update the selectedRow state with the clicked sku   
+                setSelectedRow(currentSku); // Update the selectedRow state with the clicked sku
+                // Update the cursor state
+                const index = filteredItems.findIndex(item => item.sku === sku);
+                setCursor(index);   
             } catch (error) {
                 console.error('Error fetching item details:', error);
             }
@@ -199,25 +202,29 @@ const Home = () => {
     useEffect(() => {
         if (filteredItems.length && downPress) {
             setCursor(prevState => (prevState < filteredItems.length - 1 ? prevState + 1 : prevState));
-            const currentItem = filteredItems[cursor];
-            handleRowClick(currentItem.sku);
         }
-    }, [downPress]);
+    }, [downPress, filteredItems.length]);
     
     useEffect(() => {
         if (filteredItems.length && upPress) {
             setCursor(prevState => (prevState > 0 ? prevState - 1 : prevState));
-            const currentItem = filteredItems[cursor];
-            handleRowClick(currentItem.sku);
         }
-    }, [upPress]);
+    }, [upPress, filteredItems.length]);
     
     useEffect(() => {
         if (filteredItems.length) {
-            const currentItem = filteredItems[cursor];
-            handleRowClick(currentItem.sku);
+            const selectedItem = filteredItems[cursor];
+            setSelectedRow(selectedItem.sku); // Ensure the selectedRow state is updated
+            handleRowClick(selectedItem.sku); // Fetch and update the details of the selected item
         }
-    }, [cursor]);
+    }, [cursor, filteredItems.length]);
+
+    useEffect(() => {
+        if (filteredItems.length && enterPress) {
+            setSelectedItem(filteredItems[cursor]);
+        }
+    }, [cursor, enterPress, filteredItems.length]);
+    
 
 
     return (
