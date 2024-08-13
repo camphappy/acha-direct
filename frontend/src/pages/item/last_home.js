@@ -1,7 +1,7 @@
 //Includes page listing.
 import React, { useEffect, useState, useRef, useCallback} from 'react';
+import useKeyPress from '../../components/useKeyPress'; // Adjust the path as necessary
 import debounce from 'lodash.debounce';
-import lSidebar from '../../components/common/lSidebar.json';
 
 
 const Home = () => {
@@ -22,9 +22,12 @@ const Home = () => {
     const [title, setTitle] = useState('');
     const [searchText, setSearchText] = useState(''); // Search text state
     const [isSearching, setIsSearching] = useState(false); // Track if a search is active
-    const [fileSelected, setFileSelected] = useState(null); // New state for file upload
     const magnifierRef = useRef(null);
     const containerRef = useRef(null);
+    const downPress = useKeyPress("ArrowDown");
+    const upPress = useKeyPress("ArrowUp");
+    const [cursor, setCursor] = useState(0);
+
 
     const fetchItems = useCallback(async (page = 1, limit = itemsPerPage, searchValue = '') => {
         try {
@@ -67,7 +70,10 @@ const Home = () => {
                 setSku(thisJson.sku);
                 setFileLocation(thisJson.fileLocation);
                 setImageExists(thisJson.imageExists);
-                setSelectedRow(currentSku); // Update the selectedRow state with the clicked sku   
+                setSelectedRow(currentSku); // Update the selectedRow state with the clicked sku
+                // Update the cursor state
+                //const index = filteredItems.findIndex(item => item.sku === sku);
+                //setCursor(index);   
             } catch (error) {
                 console.error('Error fetching item details:', error);
             }
@@ -193,60 +199,43 @@ const Home = () => {
         };
     }, [isMouseOver, dynamicMessage, title, handleDoubleClick]);
 
-    const handleFileChange = (e) => {
-        const selectedFile = e.target.files[0];
-        setFileSelected(selectedFile);
-        //window.alert('File selected:', fileSelected);
-        //console.log('File selected:', selectedFile);
-    };
-
-    const handleUpload = async () => {
-        if (!fileSelected) {
-            window.alert('Please select a file first');
-            return;
+    useEffect(() => {
+        if (filteredItems.length && downPress) {
+            setCursor(prevState => (prevState < filteredItems.length - 1 ? prevState + 1 : prevState));
         }
-
-    const formData = new FormData();
-        formData.append('file', fileSelected);
-
-        try {
-            const response = await fetch('/acha-kvell/upload', {
-                method: 'POST',
-                body: formData,
-            });
-
-            if (!response.ok) {
-                throw new Error('Upload failed');
-            }
-
-            const result = await response.json();
-            window.alert(result.message);
+    }, [downPress, filteredItems.length]);
+    
+    useEffect(() => {
+        if (filteredItems.length && upPress) {
+            setCursor(prevState => (prevState > 0 ? prevState - 1 : prevState));
         }
-        catch (error) {
-            console.error('Error:', error);
-            window.alert('File upload failed');
+    }, [upPress, filteredItems.length]);
+    
+    useEffect(() => {
+        if (filteredItems.length) {
+            const selectedItem = filteredItems[cursor];
+            setSelectedRow(selectedItem.sku); // Ensure the selectedRow state is updated
+            handleRowClick(selectedItem.sku); // Fetch and update the details of the selected item
         }
-    };
+    }, [cursor, filteredItems.length]);
+
+    useEffect(() => {
+        if (filteredItems.length && enterPress) {
+            setSelectedItem(filteredItems[cursor]);
+        }
+    }, [cursor, enterPress, filteredItems.length]);
+    
 
 
     return (
         <div className={"content"}>
             <div className = "contentUtilty">
-                <p><h2>Utility</h2></p>
-                <p>{lSidebar.item}</p>
-                <div>
-                    <input
-                        type="file"
-                        accept=".csv"
-                        onChange={handleFileChange}
-                    /><br/>
-                    <button onClick={handleUpload}>Upload CSV</button>
-                </div>
+                <p><br/> Utility Box Content. This is a sample text.</p>
             </div>
             <div className={"contentLeft"}>
                 <div className="pagination-container"> {/* Existing pagination and item list */}
                     <div>
-                        <form onSubmit={handleSearchSubmit}>
+                    <form onSubmit={handleSearchSubmit}>
                             <input
                                 type="text"
                                 placeholder="Search..."
@@ -315,6 +304,7 @@ const Home = () => {
                                 backgroundColor: selectedRow === item.sku ? 'lightblue' : hoveredRow === item.sku ? 'lightgrey' : 'white'
                                 }}> {/* Apply background color based on selection */}
                             <div
+                                onKey
                                 onMouseEnter={() => {
                                     setIsMouseOver(true)
                                     setDynamicMessage('masterCode was double clicked')
@@ -363,6 +353,9 @@ const Home = () => {
                 <div className="contentRight">
                     {/* Display the selected item JSON */}
                     {selectedItem && <pre>{JSON.stringify(selectedItem, null, 2)}</pre>}
+                        <div>
+                            {currentMasterCode && `Current Master Code: ${currentFileLocation}, ${currentMasterCode}`}
+                        </div>
                 <div>
                             {imageExists ? (
                                 <div
@@ -375,7 +368,7 @@ const Home = () => {
                                         alt={`Master Code not loaded ${currentFileLocation}`}
                                     />
                                     <div className="magnifier" ref={magnifierRef}></div>
-                                    {/*{`Current Master Code: ${currentFileLocation}, ${currentMasterCode}`}*/}
+                                    {`Current Master Code: ${currentFileLocation}, ${currentMasterCode}`}
                                 </div>
                             ) : (
 
