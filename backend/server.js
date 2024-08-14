@@ -7,44 +7,36 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
 
+//create express app
+const app = express();
 
 //contains all the routes
 //const poRoutes = require('./routes/po')
 //const poModel = require('./models/poModel')
-const itemRoutes = require('./routes/items')
-const itemFilterRoutes = require('./routes/itemsSpecial')
+const itemRoute = require('./routes/items')
+const itemFilterRoute = require('./routes/itemsSpecial')
+const fileUpdateRoute = require('./routes/fileUpdate')
 const itemModel = require('./models/itemModel')
 
 
-//create express app
-const app = express();
-
-//middleware - handles data from front end passed on to the backend
+// Middelware:  handles data from front end passed on to the backend
+// Browser example: http://192.168.101.48:4001/assets
+// after the port and the address will then be loaded to middleware
 app.use(express.json());
 app.use(cors()); // enable CORS
-
-// any request that comes in, it looks if there is data
-// included in the request and sends it to the server
-
 // Middleware to serve static files
 app.use('/assets',express.static(path.join(__dirname, '/public/assets')));
 app.use('/pics',express.static(path.join(__dirname, '/public/pagePics')));
-
-
-//app.use(express.static(path.join(__dirname, '../..', 'frontend', 'public')));
-
 app.use((req, res, next) => {
     console.log(req.path, req.method)
         next()
     })
 
 //Define routes
-//app.use('/acha-kvell/po', poRoutes)
-app.use('/acha-kvell/item', itemRoutes)
-app.use('/acha-kvell/itemSpecial', itemFilterRoutes)
-
-// In the browser's address, /api/workouts will need to be added
-// after the port and the address will then be loaded to middleware
+//app.use('/acha-kvell/po', poRoute)
+app.use('/acha-kvell/item', itemRoute)
+app.use('/acha-kvell/itemSpecial', itemFilterRoute)
+app.use('/acha-kvell/upload', fileUpdateRoute)
 
 //connect to mongodb
 mongoose.connect(process.env.mongo_URI)

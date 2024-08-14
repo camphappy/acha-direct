@@ -103,7 +103,7 @@ const deleteItem = async (req, res) => {
     res.status(200).json(item)
 }
 
-//update an item
+//Single item update
 const updateItem = async (req,res) => {
     const {id} = req.params
 

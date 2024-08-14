@@ -1,4 +1,4 @@
-import barHeaderText from '../components/logobarConfig.json';
+import barHeaderText from './logobarConfig.json';
 
 const Logobar = () => {
     return (

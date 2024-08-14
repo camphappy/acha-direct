@@ -1,6 +1,6 @@
-import navHeaderText from '../components/navbarConfig.json';
+import barHeaderText from './logobarConfig.json';
 
-const Navbar = () => {
+const Logobar = () => {
     return (
         <header className="header">
                 
@@ -9,10 +9,10 @@ const Navbar = () => {
                      className = "logo"
                 />
                 <div className = "headerScreenTitle">   
-                    {navHeaderText.itemNavText}
+                    {barHeaderText.itemHeaderText}
                 </div>
         </header>
     );
 }
 
-export default Navbar;
+export default Logobar;
