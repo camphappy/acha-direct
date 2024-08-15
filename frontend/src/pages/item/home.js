@@ -224,7 +224,7 @@ const Home = () => {
         }
         catch (error) {
             console.error('Error:', error);
-            window.alert('File upload failed');
+            window.alert('File SELECTED upload failed');
         }
     };
 
