@@ -1,47 +1,33 @@
 const fs = require('fs');
 const path = require('path');
-const Papa = require('papaparse');
-const { Item } = require('../models/itemModel'); // Assuming you have an item model
+const { parseAndProcessCSV } = require('../utility/csvProcessor');
 
 const handleFileUpload = async (req, res) => {
-    try {
-        const csvFilePath = req.file.path;
+  const file = req.file;
+  const uploadDir = path.join(__dirname, '../uploadsCSV');
+  const filePath = path.join(uploadDir, file.originalname);
 
-        // Read and parse the CSV file
-        const csvData = fs.readFileSync(csvFilePath, 'utf8');
-        const jsonData = Papa.parse(csvData, {
-            header: true,
-            skipEmptyLines: true,
-        }).data;
-
-        // Process each JSON document
-        for (let document of jsonData) {
-            const sku = document.sku;
-            let item = await Item.findOne({ sku });
-
-            if (item) {
-                // Update the item with new attributes
-                const attributes = [];
-                if (document.Attribute1) attributes.push({ attributeName: 'Attribute1', value: document.Value1 });
-                if (document.Attribute2) attributes.push({ attributeName: 'Attribute2', value: document.Value2 });
-
-                item.attributes.push(...attributes);
-                document.updateStatus = 'updated';
-            } else {
-                document.updateStatus = 'Not updated. Sku Not found';
-            }
-            await item.save();
-        }
-
-        // Save the resulting JSON file with update status
-        const outputPath = path.join(__dirname, '../uploads/status/', `output-${Date.now()}.json`);
-        fs.writeFileSync(outputPath, JSON.stringify(jsonData, null, 2));
-
-        res.json({ message: 'File processed successfully', outputPath });
-    } catch (error) {
-        console.error('Error processing file:', error);
-        res.status(500).json({ message: 'File processing failed' });
+  try {
+    // Check if the file already exists
+    if (fs.existsSync(filePath)) {
+      console.log('Backend console: File already exists:', filePath);
+      return res.status(409).json({ message: 'Backend return: File already exists', fileExists: true });
     }
+
+    // Move the file from temp location to desired location
+    fs.renameSync(file.path, filePath);
+    console.log('File moved to:', filePath)
+
+    // Call the CSV processing function
+    await parseAndProcessCSV(filePath);
+
+    res.status(200).json({ message: 'File uploaded and processed successfully' });
+  } catch (error) {
+    console.error('Error processing file:', error);
+    res.status(500).json({ message: 'Error processing file', error });
+  }
 };
 
-module.exports = { handleFileUpload }
+module.exports = {
+  handleFileUpload,
+};
