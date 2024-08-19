@@ -11,7 +11,7 @@ const handleFileUpload = async (req, res) => {
     // Check if the file already exists
     if (fs.existsSync(filePath)) {
       console.log('Backend console: This File already exists:', filePath);
-      return res.status(409).json({ message: 'Backend return: File already exists', fileExists: true });
+      return res.status(409).json({ message: 'Backend return: File already exists', fileExists: true, errNo: 409});
     }
 
     // Move the file from temp location to desired location

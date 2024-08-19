@@ -185,9 +185,7 @@ const Home = () => {
                 handleDoubleClick(dynamicMessage, title);
             }
         };
-
         document.addEventListener('keydown', handleKeyDown);
-
         return () => {
             document.removeEventListener('keydown', handleKeyDown);
         };
@@ -196,35 +194,45 @@ const Home = () => {
     const handleFileChange = (e) => {
         const selectedFile = e.target.files[0];
         setFileSelected(selectedFile);
-        //window.alert('File selected:', fileSelected);
-        //console.log('File selected:', selectedFile);
-    };
+
+        // Directly show the file information in alert
+        if (selectedFile) {
+            window.alert(`You selected: ${selectedFile.name}`);
+        } else {
+            window.alert('No file selected');
+        }
+
+        // Log the file information to the console
+        console.log('File selected:', selectedFile);
+    };  
 
     const handleUpload = async () => {
         if (!fileSelected) {
-            window.alert('Please select a file first');
+            window.alert('Please do select a file first');
             return;
         }
-
-    const formData = new FormData();
-        formData.append('file', fileSelected);
+        const formData = new FormData();
+            formData.append('file', fileSelected);
 
         try {
+            let errNo
             const response = await fetch('/acha-kvell/upload', {
                 method: 'POST',
-                body: formData,
-            });
-
-            if (!response.ok) {
-                throw new Error('home.js: response from backend - Upload SELECTED failed');
+                body: formData});
+            const backendResponse = await response.json();
+            if (errNo = "409") {
+                //file already exists
+                const overwrite = window.confirm(`The file "${fileSelected.name}" already exists. Do you want to overwrite it?`);
+                if (!overwrite) {
+                    window.alert('File upload canceled.');
+                    return;
+                }
             }
-
-            const result = await response.json();
-            window.alert(result.message);
+            // Proceed with the file upload if the user confirms or if the file doesn't exist
         }
         catch (error) {
             console.error('Error:', error);
-            window.alert('home.js: File SELECTED upload failed');
+            //window.alert('home.js: File SELECTED upload failed');
         }
     };
 
