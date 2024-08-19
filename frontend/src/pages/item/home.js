@@ -216,7 +216,7 @@ const Home = () => {
             });
 
             if (!response.ok) {
-                throw new Error('Upload SELECTED failed');
+                throw new Error('home.js: response from backend - Upload SELECTED failed');
             }
 
             const result = await response.json();
@@ -224,7 +224,7 @@ const Home = () => {
         }
         catch (error) {
             console.error('Error:', error);
-            window.alert('File SELECTED upload failed');
+            window.alert('home.js: File SELECTED upload failed');
         }
     };
 
