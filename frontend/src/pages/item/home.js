@@ -222,18 +222,26 @@ const Home = () => {
             const backendResponse = await response.json();
             if (errNo = "409") {
                 //file already exists
-                const overwrite = window.confirm(`The file "${fileSelected.name}" already exists. Do you want to overwrite it?`);
+                const overwrite = window.confirm(`Back to Frontend. This file "${fileSelected.name}" already exists. Do you want to overwrite it?`);
                 if (!overwrite) {
                     window.alert('File upload canceled.');
                     return;
-                }
+                } 
             }
-            // Proceed with the file upload if the user confirms or if the file doesn't exist
+            window.alert('File upload will proceed.');
+            const overwriteResponse = await fetch('/acha-kvell/update', {
+                method: 'POST',
+                body: formData
+            });
+            const result = await overwriteResponse.json();
+            window.alert(result.message);
         }
         catch (error) {
             console.error('Error:', error);
             //window.alert('home.js: File SELECTED upload failed');
         }
+        // Proceed with the file upload if the user confirms or if the file doesn't exist
+        //window.alert('File upload will proceed.');
     };
 
 
