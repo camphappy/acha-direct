@@ -33,12 +33,13 @@ const handleFileUpdate = async (req, res) => {
   const file = req.file;
   const uploadDir = path.join(__dirname, '../uploadsCSV');
   const filePath = path.join(uploadDir, file.originalname);
-  //const { parseAndProcessCSV } = require('../utils/csvProcessor');
-
-
+  
   try {
     // No need to check if the file exists since this is specifically for overwriting
     console.log(`Backend begin process: ${filePath}`);
+    fs.chmodSync(filePath, 0o666); // Ensure proper permissions
+
+    const parsedData = await parseAndProcessCSV(file.path, filePath);
 
     // Move the file from temp location to desired location, overwriting the existing file
     //fs.renameSync(file.path, filePath);
@@ -46,7 +47,7 @@ const handleFileUpdate = async (req, res) => {
 
     // Process the CSV file as required
     //await parseAndProcessCSV(filePath);
-    res.status(200).json({ message: 'Backend: File overwritten and processed successfully', responseNo: 200 });
+    res.status(200).json({ message: 'Backend: File overwritten and processed successfully', responseNo: 200, data: parsedData });
   } catch (error) {
     console.error('Error processing file:', error);
     res.status(500).json({ message: 'Error processing file', error });

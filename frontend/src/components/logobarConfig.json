@@ -1,4 +1,6 @@
 {
     "itemHeaderText": "Inventory Management",
-    "poNavText": "Purchase Order Management"
+    "poNavText": "Purchase Order Management",
+    "costHeaderText": "Cost Management",
+    "orderManagementText": "Order Management"
 }

@@ -234,8 +234,23 @@ const Home = () => {
                 body: formData
             });
             const backendUpdateResponse = await updateResponse.json();
-            if (backendUpdateResponse.responseNo = "200") {
-                window.alert(`${backendUpdateResponse.message}`);}
+            if (backendUpdateResponse.data) {
+                // Open a new window
+                const newWindow = window.open('', '_blank', 'width=600,height=400');
+    
+                // Format the data as JSON
+                const formattedData = JSON.stringify(backendUpdateResponse.data, null, 2);
+    
+                // Write the formatted data to the new window
+                newWindow.document.write('<pre>' + formattedData + '</pre>');
+                newWindow.document.close();
+            } else {
+                window.alert('Error: No data received from the server');
+            }
+
+            //if (backendUpdateResponse.responseNo = "200") {
+            //    window.alert(`${backendUpdateResponse.message}`);
+            //}
         }
         catch (error) {
             console.error('Error:', error);
