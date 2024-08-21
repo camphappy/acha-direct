@@ -191,14 +191,12 @@ const Home = () => {
         };
     }, [isMouseOver, dynamicMessage, title, handleDoubleClick]);
 
-    const handleFileChange = (e) => {
+    const handleFileSelect = (e) => {
         const selectedFile = e.target.files[0];
         setFileSelected(selectedFile);
 
         // Directly show the file information in alert
-        if (selectedFile) {
-            window.alert(`You selected: ${selectedFile.name}`);
-        } else {
+        if (!selectedFile) {
             window.alert('No file selected');
         }
 
@@ -216,25 +214,28 @@ const Home = () => {
 
         try {
             let errNo
-            const response = await fetch('/acha-kvell/upload', {
+            const uploadResponse = await fetch('/acha-kvell/upload', {
                 method: 'POST',
                 body: formData});
-            const backendResponse = await response.json();
-            if (errNo = "409") {
+            const backendUploadResponse = await uploadResponse.json();
+            if (backendUploadResponse.responseNo = "409") {
                 //file already exists
-                const overwrite = window.confirm(`Back to Frontend. This file "${fileSelected.name}" already exists. Do you want to overwrite it?`);
+                const overwrite = window.confirm(`${backendUploadResponse.message409}`);
                 if (!overwrite) {
                     window.alert('File upload canceled.');
                     return;
+                }else{
+                    window.alert(`${fileSelected.name} ready for processing`);
                 } 
             }
-            window.alert('File upload will proceed.');
-            const overwriteResponse = await fetch('/acha-kvell/update', {
+            window.alert(`Processing: ${fileSelected.name}`);
+            const updateResponse = await fetch('/acha-kvell/upload/update', {
                 method: 'POST',
                 body: formData
             });
-            const result = await overwriteResponse.json();
-            window.alert(result.message);
+            const backendUpdateResponse = await updateResponse.json();
+            if (backendUpdateResponse.responseNo = "200") {
+                window.alert(`${backendUpdateResponse.message}`);}
         }
         catch (error) {
             console.error('Error:', error);
@@ -254,9 +255,9 @@ const Home = () => {
                     <input
                         type="file"
                         accept=".csv"
-                        onChange={handleFileChange}
+                        onChange={handleFileSelect}
                     /><br/>
-                    <button onClick={handleUpload}>Upload CSV</button>
+                    <button onClick={handleUpload}>Upload and Process</button>
                 </div>
             </div>
             <div className={"contentLeft"}>

@@ -2,8 +2,7 @@ const express = require('express');
 const multer = require('multer');
 const router = express.Router();
 const { handleFileUpload,
-        handleFileUpdate 
-        
+        handleFileUpdate, 
 } = require('../controllers/fileUpdateController');
 const mongoose = require('mongoose');
 const Item = mongoose.model('Item');  // Make sure 'Item' is the correct model name
