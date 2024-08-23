@@ -265,7 +265,7 @@ grid-area: header;
   height: 100px;
   display: none; /* Hide the lens initially */
   background-repeat: no-repeat;
-  transform: scale(1.6); /* Magnify scale factor */
+  transform: scale(1.8); /* Magnify scale factor */
   transform-origin: center;
   background-size: 300%;
   pointer-events: none; /* Ensures the magnifier doesn't interfere with mouse events */

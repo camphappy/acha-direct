@@ -1,0 +1,5 @@
+--header 'Content-Type: application/json' \
+--header 'Authorization: Bearer 6nsz9sdk06j5it0l7ujx7c6b7ejy32cd' \
+--header 'Cookie: PHPSESSID=kf6q6h7p59pqg7adqegpoh0f5n; visid_incap_56271=Oio1RnllT5+pxAwDjGNiWovrhGYAAAAAQUIPAAAAAACGTi3gguM3tSoObOOOvv9z; PHPSESSID=kf6q6h7p59pqg7adqegpoh0f5n'
+
+You can takle value of access token from Authorization header. This request also allows you to retrieve order data if they were created in a certain timeframe (in this case - placed on July 1st through 31st 
