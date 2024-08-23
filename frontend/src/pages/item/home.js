@@ -140,12 +140,17 @@ const Home = () => {
    
     const handleSearchSubmit = useCallback(async (e) => {
         e.preventDefault();
-        if (searchText.trim() === '') {
+        
+        // Convert searchText to uppercase
+        const upperCaseSearchText = searchText.trim().toUpperCase();
+    
+        // Check if the searchText is empty
+        if (upperCaseSearchText === '') {
             window.alert('Enter data in Search field');
-            return;
-        }
+            return;}
+
         try {
-            const response = await fetch(`/acha-kvell/itemSpecial/search?reqmasterCode=${searchText}`);
+            const response = await fetch(`/acha-kvell/itemSpecial/search?reqmasterCode=${upperCaseSearchText}`);
             if (response.status === 404) {
                 const data = await response.json();
                 window.alert(data.message);
@@ -234,15 +239,28 @@ const Home = () => {
                 body: formData
             });
             const backendUpdateResponse = await updateResponse.json();
-            if (backendUpdateResponse.data) {
-                // Open a new window
-                const newWindow = window.open('', '_blank', 'width=600,height=400');
-    
+            if (backendUpdateResponse.data) {    
                 // Format the data as JSON
                 const formattedData = JSON.stringify(backendUpdateResponse.data, null, 2);
-    
-                // Write the formatted data to the new window
-                newWindow.document.write('<pre>' + formattedData + '</pre>');
+                // Compose html content
+                const htitle = `Read Only - ${fileSelected.name}`;
+                const htmlContent = `
+                    <html>
+                        <head>
+                            <title>${htitle}</title>
+                            <style>
+                                body { font-family: Arial, sans-serif; margin: 20px; }
+                                pre { white-space: pre-wrap; word-wrap: break-word; }
+                            </style>
+                        </head>
+                        <body>
+                            <pre>${formattedData}</pre>
+                        </body>
+                    </html>
+                `;
+                //construct new Window for RO output
+                const newWindow = window.open('', '_blank', 'width=600,height=400,toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable=yes');
+                newWindow.document.write(htmlContent);
                 newWindow.document.close();
             } else {
                 window.alert('Error: No data received from the server');
@@ -331,8 +349,10 @@ const Home = () => {
                     <div>Master Code</div>
                     <div>Old Code</div>
                     <div>SKU</div>
-                    <div>Length</div>
-                    <div>Color</div>
+                    <div>Attr1</div>
+                    <div>Val1</div>
+                    <div>Attr2</div>
+                    <div>Val2</div>
                     <div>Stock Qty</div>
                 </div>
                 <div className={"scrollable"}>
@@ -374,8 +394,10 @@ const Home = () => {
                                 onDoubleClick={() => handleDoubleClick(dynamicMessage,`sku:${item.sku}`)}>
                                 {item.sku}
                             </div>
-                            <div>{item.length}</div>
-                            <div>{item.color}</div>
+                            <div>{item.attribute1}</div>
+                            <div>{item.value1}</div>
+                            <div>{item.attribute2}</div>
+                            <div>{item.value2}</div>
                             <div
                                 onMouseEnter={() => {
                                     setIsMouseOver(true)

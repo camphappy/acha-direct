@@ -27,6 +27,7 @@ app.use(cors()); // enable CORS
 // Middleware to serve static files
 app.use('/assets',express.static(path.join(__dirname, '/public/assets')));
 app.use('/pics',express.static(path.join(__dirname, '/public/pagePics')));
+
 app.use((req, res, next) => {
     console.log(req.path, req.method)
         next()

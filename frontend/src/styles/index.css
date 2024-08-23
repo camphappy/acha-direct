@@ -106,7 +106,16 @@ grid-area: header;
   width: 50%;
   flex-direction: column;
   padding: 1px;
+  background-image: url('http://192.168.101.48:3000/pics/DaGang.jpeg');
+  background-size: cover; /* Cover the entire container */
+  background-position: center; /* Center the image */
+  background-repeat: no-repeat; /* Prevent the image from repeating */
+}
 
+.contentLeft img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Maintain aspect ratio and fill container */
 }
 
 .contentRight {
@@ -120,6 +129,7 @@ grid-area: header;
 .scrollable {
   overflow-y: auto;
   padding: 10px;
+  opacity: .8; /* Adjust the opacity level as needed */
   height: calc(70vh - 100px); /* Adjust based on the height of header/footer */
 }
 
@@ -255,7 +265,7 @@ grid-area: header;
   height: 100px;
   display: none; /* Hide the lens initially */
   background-repeat: no-repeat;
-  transform: scale(1.5); /* Magnify scale factor */
+  transform: scale(1.6); /* Magnify scale factor */
   transform-origin: center;
   background-size: 300%;
   pointer-events: none; /* Ensures the magnifier doesn't interfere with mouse events */

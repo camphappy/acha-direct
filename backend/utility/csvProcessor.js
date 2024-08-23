@@ -1,31 +1,33 @@
 const fs = require('fs');
-const Papa = require('papaparse');
+//const Papa = require('papaparse');
+const csvParser = require('csv-parser');
 
 const parseAndProcessCSV = (filePath) => {
   return new Promise((resolve, reject) => {
+    const results = [];
     try {
       console.log(`Processing CSV file at: ${filePath}`);
+      fs.createReadStream(filePath)
+      .pipe(csvParser())
+      .on('data', (row) => {
+        results.push(row); // Collect each parsed row
+      })
+      .on('end', () => {
+        //update data row by row
 
-      // Read the file
-      const fileContent = fs.readFileSync(filePath, 'utf8');
-      console.log('File content:', fileContent);
-
-      // Parse the file content
-      Papa.parse(fileContent, {
-        header: true, // Treat the first row as headers
-        dynamicTyping: true,
-        complete: (results) => {
-          resolve(results.data);
-        },
-        error: (error) => {
-          reject(error); // Reject the promise on error
-        }
+        resolve(results); // Resolve the promise with all parsed data
+      })
+      .on('error', (error) => {
+        reject(error); // Reject the promise if an error occurs
       });
-    } catch (error) {
+    } 
+    catch (error) {
       console.error('Error processing file:', error);
       reject(error); // Reject the promise if an error occurs
     }
   });
 };
+
+
 
 module.exports = { parseAndProcessCSV };
