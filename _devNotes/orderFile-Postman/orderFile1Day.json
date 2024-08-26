@@ -1,0 +1,28 @@
+{
+    "items": [],
+    "search_criteria": {
+        "filter_groups": [
+            {
+                "filters": [
+                    {
+                        "field": "created_at",
+                        "value": "2024-06-01",
+                        "condition_type": "gt"
+                    }
+                ]
+            },
+            {
+                "filters": [
+                    {
+                        "field": "created_at",
+                        "value": "2024-06-01",
+                        "condition_type": "lt"
+                    }
+                ]
+            }
+        ],
+        "page_size": 20,
+        "current_page": 1
+    },
+    "total_count": 0
+}

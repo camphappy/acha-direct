@@ -1,5 +1,5 @@
 { 
-  "item": "Update inventory",
+  "itemBulkUpdate": "Bulk Update",
   "po": "this is a special line"
 }
   
