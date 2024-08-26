@@ -283,8 +283,8 @@ const Home = () => {
         <div className={"content"}>
             <div className = "contentUtilty">
                 <p><h2>Utility</h2></p>
-                <p>{lSidebar.item}</p>
                 <div>
+                <p>Bulk Update</p>
                     <input
                         type="file"
                         accept=".csv"
