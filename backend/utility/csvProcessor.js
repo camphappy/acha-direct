@@ -1,3 +1,4 @@
+//Bulk Add new fields, based on _id
 const fs = require('fs');
 //const Papa = require('papaparse');
 const csvParser = require('csv-parser');
