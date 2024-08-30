@@ -4,6 +4,7 @@ import debounce from 'lodash.debounce';
 import lSidebar from '../../components/common/lSidebar.json';
 
 
+
 const Home = () => {
     const [items, setItems] = useState([]);
     const [selectedItem, setSelectedItem] = useState(null);
@@ -25,6 +26,21 @@ const Home = () => {
     const [fileSelected, setFileSelected] = useState(null); // New state for file upload
     const magnifierRef = useRef(null);
     const containerRef = useRef(null);
+    const images = [
+        'http://192.168.101.48:3000/pics/DaGang1.png',
+        'http://192.168.101.48:3000/pics/DaGang4.png',
+        'http://192.168.101.48:3000/pics/DaGang5.png',
+        'http://192.168.101.48:3000/pics/DaGang6.png',
+        'http://192.168.101.48:3000/pics/DaGang7.png',
+        'http://192.168.101.48:3000/pics/DaGang8.png'
+      ];
+    
+    const randomImage = images[Math.floor(Math.random() * images.length)];
+    
+      // Dynamic styles for the contentLeft div
+    const dynamicContentLeftBackgroundStyle = {
+        backgroundImage: `url('${randomImage}')`
+    };
 
     const fetchItems = useCallback(async (page = 1, limit = itemsPerPage, searchValue = '') => {
         try {
@@ -294,6 +310,7 @@ const Home = () => {
                 </div>
             </div>
             <div className={"contentLeft"}>
+            {/*<div className={"contentLeft"} style={dynamicContentLeftBackgroundStyle}> */}
                 <div className="pagination-container"> {/* Existing pagination and item list */}
                     <div>
                         <form onSubmit={handleSearchSubmit}>
@@ -394,18 +411,21 @@ const Home = () => {
                                 onDoubleClick={() => handleDoubleClick(dynamicMessage,`sku:${item.sku}`)}>
                                 {item.sku}
                             </div>
-                            <div>{item.attribute1}</div>
-                            <div>{item.value1}</div>
-                            <div>{item.attribute2}</div>
-                            <div>{item.value2}</div>
-                            <div
-                                onMouseEnter={() => {
-                                    setIsMouseOver(true)
-                                    setDynamicMessage('Qty on hand details')
-                                }}
-                                onMouseLeave={() => setIsMouseOver(false)}
-                                onDoubleClick={() => handleDoubleClick(dynamicMessage,`Qty breakdown.`)}>
-                                {item.qtyOnHand}
+                            <div>{item.Attribute1}</div>
+                            <div>{item.Value1}</div>
+                            <div>{item.Attribute2}</div>
+                            <div>{item.Value2}</div>
+                            <div className="qty-container">
+                                {item.itemQty.map((qty, idx) => (
+                                      <div key={idx} className="qty-item">
+                                          {qty.itemQty}
+                                          <div className="tooltip">
+                                              <div>On Order Qty: {qty.onOrderQty}</div>
+                                              <div>QC Qty: {qty.qcQty}</div>
+                                              <div>Trashy Trashybox Qty: {qty.trashyTrashybox}</div>
+                                          </div>
+                                      </div>
+                                ))}
                             </div>
                         </div>
                     ))} 

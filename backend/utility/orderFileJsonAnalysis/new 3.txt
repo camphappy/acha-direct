@@ -1,0 +1,66 @@
+SOLD TO:
+"billing_address": {
+                "address_type": "billing",
+4B                "city": "sudbury",
+1                "company": "Ace star piercing ",
+5                "country_id": "CA",
+                "customer_address_id": 52872,
+                "email": "karanveerjatt274@gmail.com",
+                "entity_id": 100320,
+2A                "firstname": "Karanveer",
+2B                "lastname": "Singh",
+                "parent_id": 50266,
+4A                "postcode": "P3C5T4",
+                "prefix": "Mr.",
+                "region": "Ontario",
+                "region_code": "ON",
+                "region_id": 74,
+                "street": [
+3                    "159 amberdale court"
+                ],
+                "telephone": "2268981155"
+            },
+
+SHIPPING: 
+
+"extension_attributes": {
+                "shipping_assignments": [
+                    {
+                        "shipping": {
+                            "address": {
+                                "address_type": "shipping",
+4b                                "city": "sudbury",
+1                                "company": "Ace star piercing ",
+5                                "country_id": "CA",
+                                "customer_address_id": 52872,
+                                "email": "karanveerjatt274@gmail.com",
+                                "entity_id": 100319,
+2a                                "firstname": "Karanveer",
+2b                                "lastname": "Singh",
+                                "parent_id": 50266,
+4a                                "postcode": "P3C5T4",
+                                "prefix": "Mr.",
+                                "region": "Ontario",
+                                "region_code": "ON",
+                                "region_id": 74,
+                                "street": [
+3                                    "159 amberdale court"
+                                ],
+6                                "telephone": "2268981155"
+                            },
+                            "method": "tablerate_bestway",
+                            "total": {
+                                "base_shipping_amount": 0,
+                                "base_shipping_discount_amount": 0,
+                                "base_shipping_discount_tax_compensation_amnt": 0,
+                                "base_shipping_incl_tax": 0,
+                                "base_shipping_invoiced": 0,
+                                "base_shipping_tax_amount": 0,
+                                "shipping_amount": 0,
+                                "shipping_discount_amount": 0,
+                                "shipping_discount_tax_compensation_amount": 0,
+                                "shipping_incl_tax": 0,
+                                "shipping_invoiced": 0,
+                                "shipping_tax_amount": 0
+                            }
+                        }

@@ -106,10 +106,10 @@ grid-area: header;
   width: 50%;
   flex-direction: column;
   padding: 1px;
-  background-image: url('http://192.168.101.48:3000/pics/DaGang.jpeg');
   background-size: cover; /* Cover the entire container */
   background-position: center; /* Center the image */
   background-repeat: no-repeat; /* Prevent the image from repeating */
+  /* background-image: url('http://192.168.101.48:3000/pics/DaGang.jpeg'); */
 }
 
 .contentLeft img {
@@ -289,4 +289,37 @@ grid-area: header;
   align-items: center;
   position: relative;
   display: inline-block;
+}
+
+.qty-container {
+  position: relative;
+}
+
+.qty-item {
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+}
+
+.tooltip {
+  visibility: hidden;
+  width: 200px;
+  background-color: #333;
+  color: #fff;
+  text-align: center;
+  border-radius: 5px;
+  padding: 5px;
+  position: absolute;
+  z-index: 1;
+  bottom: 100%; /* Position the tooltip above the itemQty */
+  left: 50%;
+  margin-left: -100px; /* Center the tooltip */
+  opacity: 0;
+  transition: opacity 0.3s;
+  white-space: nowrap;
+}
+
+.qty-item:hover .tooltip {
+  visibility: visible;
+  opacity: 1;
 }
