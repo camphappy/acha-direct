@@ -1,3 +1,5 @@
+//jisoo5
+
 const fs = require('fs');
 const path = require('path');
 const XLSX = require('xlsx');
@@ -17,7 +19,7 @@ const checkMasterCodeReadExists = (masterCodeReadFile) => {
 };
 
 // Function to read masterCodeRead from masterCodeRead.json if it exists
-const readMasterCodeRead = (masterCodeReadFile) => {
+const readMasterCodeRead === (masterCodeReadFile) => {
     if (fs.existsSync(masterCodeReadFile)) {
         const fileData = fs.readFileSync(masterCodeReadFile, 'utf8');
         return JSON.parse(fileData);
@@ -107,13 +109,14 @@ const createItemDescriptionJson = (sourceDir, outputFile, masterCodeReadFile) =>
 
     // Read existing JSON file to avoid duplicates
     const existingData = readExistingData(outputFile);
+    const allData = [...existingData];
 
     // Process each Excel file in the source directory
     const files = fs.readdirSync(sourceDir).filter(file => path.extname(file) === '.xlsx');
     files.forEach(file => {
         const filePath = path.join(sourceDir, file);
         const fileData = processExcelFile(filePath, existingData, masterCodeRead);
-        console.log(`Now Processing ${sheetName} in ${filePath}`);
+        console.log(`Now Processing ${sheetName} in ${file}`);
 
         if (fileData.length > 0) {
             // Append the new data to the JSON file after processing the current Excel file
@@ -129,7 +132,9 @@ const createItemDescriptionJson = (sourceDir, outputFile, masterCodeReadFile) =>
         } else {
             console.log(`No new data found in file: ${file}`);
         }
-    });
+    }
+
+    );
 
     // Only at the end, create or append to masterCodeRead.json
     fs.writeFileSync(masterCodeReadFile, JSON.stringify(masterCodeRead, null, 2), 'utf8');
@@ -141,3 +146,4 @@ const sourceDir = path.join(__dirname, '../uploadsXLSX');  // path to Excel file
 const outputFile = path.join(__dirname, '../utilityOutput/jisooShortDescription.json');  // Path to your source file
 const masterCodeReadFile = './masterCodeRead.json'; // File to store the masterCodeRead array
 createItemDescriptionJson(sourceDir, outputFile);
+//jisoo5

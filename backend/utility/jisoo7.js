@@ -1,4 +1,3 @@
-//jisoo4
 const fs = require('fs');
 const path = require('path');
 const XLSX = require('xlsx');
@@ -7,7 +6,12 @@ const XLSX = require('xlsx');
 const readExistingData = (outputFile) => {
     if (fs.existsSync(outputFile)) {
         const fileData = fs.readFileSync(outputFile, 'utf8');
-        return JSON.parse(fileData);
+        try {
+            return JSON.parse(fileData);  // Make sure to parse the JSON correctly
+        } catch (error) {
+            console.error(`Error parsing JSON from ${outputFile}: ${error}`);
+            return [];
+        }
     }
     return [];
 };
@@ -51,22 +55,22 @@ const processExcelFile = (filePath, existingData, masterCodeRead) => {
         }
 
         // Normalize masterCode: trim and lowercase it
-        console.log(`File and Sheet: ${filePath}, ${sheetName}`);
-        console.log(`Processing masterCode from Excel: ${masterCode}`);
-
         masterCode = masterCode.trim().toLowerCase();
 
-        // Check if masterCode has been read already in masterCodeRead array)
+        // Logging
+        console.log(`Processing masterCode from Excel: ${masterCode}`);
+
+        // Check if masterCode has been read already in masterCodeRead (exact match check)
         if (masterCodeRead.includes(masterCode)) {
-            console.log(`Skipping duplicate masterCode in current session: ${masterCode}`);
+            console.log(`Skipping duplicate masterCode (already processed): ${masterCode}`);
             row++;
-            continue; // Move to the next row if already processed
+            continue;
         }
 
-        // Search in existingData for a match
+        // Search in existingData for a match (exact character match)
         const exists = existingData.some(item => {
             const existingMasterCode = item.masterCode.trim().toLowerCase();
-            return existingMasterCode === masterCode;
+            return existingMasterCode === masterCode && existingMasterCode.length === masterCode.length;
         });
 
         if (!exists) {
@@ -110,7 +114,7 @@ const createItemDescriptionJson = (sourceDir, outputFile, masterCodeReadFile) =>
         console.log(`Processing file: ${file}`);
 
         if (fileData.length > 0) {
-            // Append the new data to the JSON file after processing the current Excel file
+            // Append new data to the allData array
             allData.push(...fileData);
 
             // After processing, delete the file
@@ -125,17 +129,17 @@ const createItemDescriptionJson = (sourceDir, outputFile, masterCodeReadFile) =>
         }
     });
 
-    // Write the combined data back to the JSON output file (append new entries)
+    // Write the combined data back to the JSON output file (overwrite the file with the updated array)
     fs.writeFileSync(outputFile, JSON.stringify(allData, null, 2), 'utf8');
-    console.log(`Data successfully written/appended to ${outputFile}`);
+    console.log(`Data successfully written to ${outputFile}`);
 
     // Only at the end, create or append to masterCodeRead.json
     fs.writeFileSync(masterCodeReadFile, JSON.stringify(masterCodeRead, null, 2), 'utf8');
     console.log(`masterCodeRead successfully created/appended to ${masterCodeReadFile}`);
 };
 
+// Paths and File Configurations
 const sourceDir = path.join(__dirname, '../uploadsXLSX');  // path to Excel files
 const outputFile = path.join(__dirname, '../utilityOutput/jisooShortDescription.json');  // Path to your source file
 const masterCodeReadFile = './masterCodeRead.json'; // File to store the masterCodeRead array
 createItemDescriptionJson(sourceDir, outputFile, masterCodeReadFile);
-//jisoo4
