@@ -1,9 +1,10 @@
+
 import {BrowserRouter, Routes, Route } from 'react-router-dom'
 
 //pages and components
-import Home from './pages/Home';
-import Navbar from'./components/Navbar';
-import ItemDetails from './pages/ItemDetails'; 
+import Logobar from './components/Logobar';
+import Home from './pages/item/home';
+
 
 /*
 import Orders from'./components/Orders'
@@ -12,23 +13,22 @@ import PO from'./components/PO'
 import CostPrice from'./components/CostPrice'
 import Utility from'./components/Utily'
 import Orders from'./components/Orders'
+<< 1  2  3  ...>>  SKIP __ 
+
 */
 
 function App() {
   return (
     <div className="mainScreen">
       <BrowserRouter>
-          <Navbar />  
-          <div className="leftWindow">
-            <p>Utility Box Content. This is a afsjkkjhfsjklsdaklfhfhfhdfskjfd  hasdjl f afhjlf jhjl sdlkj fdhj  fajh aflkjf fds sdf jk fdsj fdhfjaf la fdj hfshjf dslks djfsda fsdhjla kjlhafhfsa fhjsasldkjhnbfd a hfdjhklasfdkjlnbhsdafdkjfswdkjf dhlkaf dskljab  f sdhjklafdskjbnf </p>
-          </div>
+          <Logobar />
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="item-details/:sku" element = {<ItemDetails />} />
+            {/*<Route path="item-details/:sku" element = {<ItemDetails />} />*/}
           </Routes>
+          
       </BrowserRouter>
     </div>
   );
 }
-
 export default App;

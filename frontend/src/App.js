@@ -3,8 +3,8 @@ import {BrowserRouter, Routes, Route } from 'react-router-dom'
 
 //pages and components
 import Logobar from './components/Logobar';
-import Home from './pages/item/home';
-
+//import Home from './pages/item/home';
+import ItemMgmt from './pages/item/itemManagement';
 
 /*
 import Orders from'./components/Orders'
@@ -23,8 +23,7 @@ function App() {
       <BrowserRouter>
           <Logobar />
           <Routes>
-            <Route path="/" element={<Home />} />
-            {/*<Route path="item-details/:sku" element = {<ItemDetails />} />*/}
+            <Route path="/" element={<ItemMgmt />} />
           </Routes>
           
       </BrowserRouter>

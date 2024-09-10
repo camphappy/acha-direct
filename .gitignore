@@ -4,5 +4,7 @@ backend/node_modules/
 backend/public/
 backend/uploadsCSV/
 backend/uploadstmp/
+backend/uploadsXLSX/
+backend/utilityOutput/
 _test/
 
