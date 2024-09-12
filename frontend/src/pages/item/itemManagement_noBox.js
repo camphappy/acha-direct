@@ -43,14 +43,12 @@ const Home = () => {
     };
 
     const fetchItems = useCallback(async (page = 1, limit = itemsPerPage, searchValue = '') => {
-        const controller = new AbortController(); // Create an AbortController instance
-        const signal = controller.signal; // Get the signal to pass to fetch
         try {
             let url = `/acha-kvell/item?page=${page}&limit=${limit}`;
             if (searchValue.trim() !== '') {
                 url = `/acha-kvell/itemSpecial/search?reqmasterCode=${searchValue}&page=${page}&limit=${limit}`;
             }
-            const response = await fetch(url, { signal }); // Pass the signal to fetch
+            const response = await fetch(url);
             if (!response.ok) {
                 throw new Error('Failed to fetch items');
             }
@@ -68,15 +66,9 @@ const Home = () => {
                 window.alert('No data found');
             }
         } catch (error) {
-            if (error.name === 'AbortError') {
-                console.log('Fetch aborted');
-            } else {
-                console.error('Error fetching item details:', error);
-            }
-        }
-    
-        return () => controller.abort();
-    }, []);
+            console.error('Error fetching items:', error);
+        }    
+    }, [itemsPerPage]);
 
     const handleRowClick = async (currentSku) => {
         try {
@@ -164,10 +156,6 @@ const Home = () => {
    
     const handleSearchSubmit = useCallback(async (e) => {
         e.preventDefault();
-
-        const controller = new AbortController();
-        const signal = controller.signal;
-    
         
         // Convert searchText to uppercase
         const upperCaseSearchText = searchText.trim().toUpperCase();
@@ -201,18 +189,12 @@ const Home = () => {
             } else {
                 window.alert('No data found')
             }
-        } catch (error) {
-            if (error.name === 'AbortError') {
-                console.log('Search aborted');
-            } else {
-                console.error('Error fetching items:', error);
-            }
         }
+        catch (error) {
+                console.error('Error fetching items:', error);
+        }
+    }, [itemsPerPage, searchText]);
     
-        return () => controller.abort(); // Abort previous request if a new one is initiated
-    }, [searchText, itemsPerPage, handleRowClick]);    
-
-
     const handleSearchChange = (e) => {
         setSearchText(e.target.value);
         console.log('Search text changed:', e.target.value);
@@ -312,19 +294,6 @@ const Home = () => {
         //window.alert('File upload will proceed.');
     };
 
-    const [selectedItems, setSelectedItems] = useState([]);
-
-    const handleCheckboxChange = (masterCode) => {
-    setSelectedItems((prevSelectedItems) => {
-        if (prevSelectedItems.includes(masterCode)) {
-            // If already selected, remove it
-            return prevSelectedItems.filter((code) => code !== masterCode);
-        } else {
-            // Otherwise, add it to the selected items
-            return [...prevSelectedItems, masterCode];
-        }
-        });
-    };
 
     return (
         <div className={"content"}>
@@ -414,11 +383,6 @@ const Home = () => {
                             style={{
                                 backgroundColor: selectedRow === item.sku ? 'lightblue' : hoveredRow === item.sku ? 'lightgrey' : 'white'
                                 }}> {/* Apply background color based on selection */}
-                            <input
-                                type="checkbox"
-                                checked={selectedItems.includes(item.masterCode)}
-                                onChange={() => handleCheckboxChange(item.masterCode)}
-                            />                                                    
                             <div
                                 onMouseEnter={() => {
                                     setIsMouseOver(true)
