@@ -1,0 +1,93 @@
+[
+    {
+      "items": [
+        {
+            "increment_id": "7000007300",  
+            "store_id": 1,
+            "customer_email": "karanveerjatt274@gmail.com",
+            "customer_firstname": "Karanveer",
+            "customer_lastname": "Singh",
+            "customer_id": 36547,
+            "subtotal_invoiced": 1432.64,
+            "discount_invoiced": -71.63,
+            "grand_total": 1361.01,
+            "order_currency_code": "CAD",
+            "weight": 4327.36,
+            "updated_at": "2024-07-10 21:34:47",
+            "items": [
+              {
+                "name": "NEE",
+                "row_weight": 50.2,
+                "increment_id": "7000007300",
+                "entity_id": 50266,
+                "sku": "NEE-D02000",
+                "price": 2.3,
+                "qty_invoiced": 10,
+                "qty_ordered": 10,
+                "qty_shipped": 10,
+                "row_invoiced": 23,
+                "row_weight": 50.2
+  
+              },
+              {
+                "name": "NEE-D02000",
+                "sku": "NEE-D02000",
+                "parent_item": {
+                  "sku": "NEE-D02000"
+                }
+              }
+            ],
+            "billing_address": {
+                "address_type": "billing",
+                "city": "sudbury",
+                "company": "Ace star piercing ",
+                "country_id": "CA",
+                "customer_address_id": 52872,
+                "email": "karanveerjatt274@gmail.com",
+                "entity_id": 100320,
+                "firstname": "Karanveer",
+                "lastname": "Singh",
+                "parent_id": 50266,
+                "postcode": "P3C5T4",
+                "prefix": "Mr.",
+                "region": "Ontario",
+                "region_code": "ON",
+                "region_id": 74,
+                "street": [
+                    "159 amberdale court"
+                ],
+                "telephone": "2268981155",
+            "extension_attributes": {
+                "shipping_assignments": [
+                    {
+                        "shipping": {
+                            "address": {
+                                "address_type": "shipping",
+                                "city": "sudbury",
+                                "company": "Ace star piercing ",
+                                "country_id": "CA",
+                                "customer_address_id": 52872,
+                                "email": "karanveerjatt274@gmail.com",
+                                "entity_id": 100319,
+                                "firstname": "Karanveer",
+                                "lastname": "Singh",
+                                "parent_id": 50266,
+                                "postcode": "P3C5T4",
+                                "prefix": "Mr.",
+                                "region": "Ontario",
+                                "region_code": "ON",
+                                "region_id": 74,
+                                "street": [
+                                    "159 amberdale court"
+                                ],
+                                "telephone": "2268981155"
+                            }  
+                        }
+                    }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]

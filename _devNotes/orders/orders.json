@@ -1,0 +1,33 @@
+[
+    {
+      "items": [
+        {
+          "entity_id": 50266,
+          "items": [
+            {
+              "customer_email": "karanveerjatt274@gmail.com",
+              "customer_id": 36547,
+              "customer_firstname": "Karanveer",
+              "customer_lastname": "Singh",
+              "name": "NEE",
+              "row_weight": 50.2,
+              "sku": "NEE-D02000",
+              "price": 2.3,
+              "qty_invoiced": 10,
+              "qty_ordered": 10,
+              "qty_shipped": 10,
+              "row_invoiced": 23,
+              "row_weight": 50.2
+            },
+            {
+              "name": "NEE-D02000",
+              "sku": "NEE-D02000",
+              "parent_item": {
+                "sku": "NEE-D02000"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]

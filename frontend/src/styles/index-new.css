@@ -106,7 +106,16 @@ grid-area: header;
   width: 50%;
   flex-direction: column;
   padding: 1px;
+  background-size: cover; /* Cover the entire container */
+  background-position: center; /* Center the image */
+  background-repeat: no-repeat; /* Prevent the image from repeating */
+  /* background-image: url('http://192.168.101.48:3000/pics/DaGang.jpeg'); */
+}
 
+.contentLeft img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Maintain aspect ratio and fill container */
 }
 
 .contentRight {
@@ -119,19 +128,33 @@ grid-area: header;
 /* Scrollable container for the list of items */
 .scrollable {
   overflow-y: auto;
-  padding: 10px;
+  padding: 2px;
+  opacity: .8; /* Adjust the opacity level as needed */
   height: calc(70vh - 100px); /* Adjust based on the height of header/footer */
 }
 
-.menuField {
+
+
+.menuFieldContainer {
+  grid-area: content;
+  width: 100%;
+  flex-direction: row;
+  padding: 1px;
+  border-width: thin;
+}
+
+.menufield {
+  grid-area: menuFieldContainer;
   font-family: sans-serif, Helvetica;
   display: flex;
+  flex-direction: row;
   justify-content: space-around;
-  padding: 6px;
-  font-weight: bold;
-  background-color: #6daef82a;
+  padding: 8px;
+  font-size: 10px;
+  background-color: #6daef86c;
   border-style: groove;
-  border-color: #afc6e0c2;
+  border-color: #afc6e0e1;
+  border-width: thin;
 }
 
 .menuField div {
@@ -168,7 +191,13 @@ grid-area: header;
   font-size: 12px;
   background-color: #a1a0aa;
   text-align: left;
-  border-bottom: 2px solid #cfced1;
+  border-bottom: 2px solid #a1a0aa;
+}
+
+.rowsPerPage-dropdown {
+  flex: 1;
+  font-size: 12px;
+  text-align: left;
 }
 
 /* Footer styling */
@@ -186,9 +215,8 @@ grid-area: header;
     grid-template-areas:
       'header'
       'content'
-      'contentUtility'
-      'contentLeft'
-      'contentRight'
+      'leftSidebar'
+      'rightSidebar'
       'footer';
     grid-template-columns: 1fr;
     grid-template-rows: auto 1fr auto auto auto;
@@ -236,8 +264,8 @@ grid-area: header;
 }
 
 .container img {
-  width: 100%;
-  height: 100%;
+  width: 90%;
+  height: 90%;
 }
 
 .magnifier {
@@ -249,7 +277,7 @@ grid-area: header;
   height: 100px;
   display: none; /* Hide the lens initially */
   background-repeat: no-repeat;
-  transform: scale(1.5); /* Magnify scale factor */
+  transform: scale(1.8); /* Magnify scale factor */
   transform-origin: center;
   background-size: 300%;
   pointer-events: none; /* Ensures the magnifier doesn't interfere with mouse events */
@@ -273,4 +301,37 @@ grid-area: header;
   align-items: center;
   position: relative;
   display: inline-block;
+}
+
+.qty-container {
+  position: relative;
+}
+
+.qty-item {
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+}
+
+.tooltip {
+  visibility: hidden;
+  width: 200px;
+  background-color: #333;
+  color: #fff;
+  text-align: center;
+  border-radius: 5px;
+  padding: 5px;
+  position: absolute;
+  z-index: 1;
+  bottom: 100%; /* Position the tooltip above the itemQty */
+  left: 50%;
+  margin-left: -100px; /* Center the tooltip */
+  opacity: 0;
+  transition: opacity 0.3s;
+  white-space: nowrap;
+}
+
+.qty-item:hover .tooltip {
+  visibility: visible;
+  opacity: 1;
 }

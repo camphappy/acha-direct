@@ -68,9 +68,72 @@
   }
 
   .checkbox-top-align {
-    align-self: flex-start; /* Align the checkbox to the top */
+    /*align-self: flex-start; /* Align the checkbox to the top */
+    vertical-align: top;
   }
 
+  .menuField {
+    display: flex;
+    align-items: center;
+  }
+  /* Style the dropdown container */
+.dropdown {
+  position: relative;
+  display: inline-block;
+  margin-right: 10px; /* space before Master Code */
+}
+
+/* Hide the default checkbox */
+#dropdown-checkbox {
+  display: none;
+}
+
+/* Style for the dropdown arrow */
+.dropdown-label {
+  cursor: pointer;
+  font-size: 16px;
+  margin-right: 5px;
+}
+
+/* Style dropdown content */
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #f9f9f9;
+  min-width: 120px;
+  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+  z-index: 1;
+  flex-direction: column;
+}
+
+/* Show dropdown content when label is clicked */
+.dropdown-label::after {
+  content: '▼';
+  display: inline-block;
+  font-size: 16px;
+}
+
+.dropdown-label:checked ~ .dropdown-content {
+  display: flex;
+}
+
+/* Style individual dropdown items */
+.dropdown-content div {
+  padding: 8px 12px;
+  text-align: left;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+/* Add hover effect for dropdown items */
+.dropdown-content div:hover {
+  background-color: #f1f1f1;
+}
+
+/* Show dropdown when checkbox is checked */
+#dropdown-checkbox:checked ~ .dropdown-content {
+  display: flex;
+}
   /* Default styles for larger screens */
   .mainScreen {
     font-family: Arial, sans-serif;
@@ -327,48 +390,7 @@
     white-space: nowrap;
   }
   
-  .qty-item:hover .tooltip  {
+  .qty-item:hover .tooltip {
     visibility: visible;
     opacity: 1;
   }
-
-/* Container for checkbox and dropdown */
-.checkbox-dropdown-container .tooltip.dropdown-menu {
-  visibility: visible;
-  opacity: 1;
-}
-
-/* Styles for individual dropdown items */
-.dropdown-menu div {
-  padding: 5px;
-  cursor: pointer;
-}
-
-/* Style for the checkbox */
-#standalone-checkbox {
-  margin-right: 10px;
-}
-
-/* Dropdown arrow style */
-.dropdown-arrow {
-  cursor: pointer;
-  margin-left: 10px;
-  font-size: 16px;
-}
-
-/* Dropdown menu styling */
-.dropdown-menu div {
-  padding: 5px;
-  cursor: pointer;
-}
-
-/* Style for dropdown items */
-.dropdown-menu div {
-  padding: 5px;
-  cursor: pointer;
-}
-
-/* Change background color on hover */
-.dropdown-menu div:hover {
-  background-color: #f1f1f1;
-}
