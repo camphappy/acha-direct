@@ -5,8 +5,6 @@ const fs = require('fs');
 const path = require('path');
 
 //get all items with pagination
-//const getItems = async (req, res) => {
-    //const items = await Item.find({}).sort({createdAt: -1})
 const getItems = async (req, res) => {
     const { page = 1, limit = itemsPerPage } = req.query; // Default to page 1 and limit 100
     try {

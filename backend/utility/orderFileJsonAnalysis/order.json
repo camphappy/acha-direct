@@ -26,14 +26,16 @@
                 "qty_ordered": 10,
                 "qty_shipped": 10,
                 "row_invoiced": 23,
-                "row_weight": 50.2
-  
-              },
-              {
-                "name": "NEE-D02000",
-                "sku": "NEE-D02000",
-                "parent_item": {
-                  "sku": "NEE-D02000"
+                "row_weight": 50.2,
+                "product_option": {
+                  "extension_attributes": {
+                      "configurable_item_options": [
+                        {
+                          "option_id": "158",
+                          "option_value": 147
+                        }
+                      ]
+                  }
                 }
               }
             ],
