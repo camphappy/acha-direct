@@ -6,5 +6,7 @@ backend/uploadsCSV/
 backend/uploadstmp/
 backend/uploadsXLSX/
 backend/utilityOutput/
+backend/.env/
+backend/utility/
 _test/
 

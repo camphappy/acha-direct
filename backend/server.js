@@ -6,6 +6,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
+const jwtSecret = process.env.JWT_SECRET;
 
 //create express app
 const app = express();
