@@ -12,4 +12,6 @@ backend/utility/
 backend/utility/MagentoImportJson/rawFetchedOrders
 backend/utility/MagentoImportJson/readyFetchedOrders
 _test/
+frontend/build/
+backend/dist/
 

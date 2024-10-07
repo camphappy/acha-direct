@@ -1,7 +1,7 @@
 //Includes page listing.
 import React, { useEffect, useState, useRef, useCallback} from 'react';
 import debounce from 'lodash.debounce';
-import lSidebar from '../../components/common/lSidebar.json';
+
 
 
 

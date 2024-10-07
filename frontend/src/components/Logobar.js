@@ -7,7 +7,7 @@ const Logobar = () => {
                      alt="Acha Direct Logo"
                      className = "logo"
                 />
-                <div className = "headerScreenTitle">   
+                <div className = "headerScreenTitle">
                     {barHeaderText.itemHeaderText}
                 </div>
         </header>
