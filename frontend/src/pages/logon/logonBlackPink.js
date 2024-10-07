@@ -58,6 +58,7 @@ const LogonFrm = () => {
                          onClick={() => selectImage('JennieBlackPink')}  // select the image on click
                          className={`logo-gif selectable-image ${selectedImage === 'JennieBlackPink' ? 'selected' : ''}`} // Apply 'selected' class if selected    
                     />
+                    
                     <img src="/pics/RoseBlackPink.gif"
                          alt="BlackPink"
                          class="selectable-image"

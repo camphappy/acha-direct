@@ -2,9 +2,6 @@
 import React, { useEffect, useState, useRef, useCallback} from 'react';
 import debounce from 'lodash.debounce';
 
-
-
-
 const Home = () => {
     const [items, setItems] = useState([]);
     const [selectedItem, setSelectedItem] = useState(null);

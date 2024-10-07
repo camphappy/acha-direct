@@ -8,7 +8,7 @@ backend/uploadstmp/
 backend/uploadsXLSX/
 backend/utilityOutput/
 backend/.env/
-backend/utility/
+backend/utility/MagentoImportJson/downloads/CustomerOrders
 backend/utility/MagentoImportJson/rawFetchedOrders
 backend/utility/MagentoImportJson/readyFetchedOrders
 _test/
