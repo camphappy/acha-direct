@@ -1,6 +1,9 @@
 //Includes page listing.
 import React, { useEffect, useState, useRef, useCallback} from 'react';
 import debounce from 'lodash.debounce';
+import lSidebar from '../../../components/common/lSidebar.json';
+
+
 
 const Home = () => {
     const [items, setItems] = useState([]);
@@ -31,13 +34,44 @@ const Home = () => {
         'http://192.168.101.48:3000/pics/DaGang7.png',
         'http://192.168.101.48:3000/pics/DaGang8.png'
       ];
-    
+      
     const randomImage = images[Math.floor(Math.random() * images.length)];
     
       // Dynamic styles for the contentLeft div
     const dynamicContentLeftBackgroundStyle = {
         backgroundImage: `url('${randomImage}')`
+        };
+
+    let selectedDropdownItem = '';
+
+    // Handle click on dropdown items
+    const selectDropdownItem = (item) => {
+        selectedDropdownItem = item;
+        console.log("Selected item:", selectedDropdownItem);
+    
+        // Optionally, update the label with the selected item
+        const label = document.querySelector('.dropdown-label');
+        label.textContent = `▼ ${selectedDropdownItem}`;
+        
+        // Hide dropdown after selection
+        document.querySelector('.dropdown-content').style.display = 'none';
     };
+    
+    // Toggle dropdown visibility
+    const toggleDropdownVisibility = () => {
+        const dropdownContent = document.querySelector('.dropdown-content');
+        dropdownContent.style.display = (dropdownContent.style.display === 'flex' ? 'none' : 'flex');
+    };
+    
+    // Add event listeners
+    document.querySelector('.dropdown-label').addEventListener('click', toggleDropdownVisibility);
+
+    // Add event listeners for dropdown items
+    const dropdownItems = document.querySelectorAll('.dropdown-content div');
+    dropdownItems.forEach(item => {
+        item.addEventListener('click', () => selectDropdownItem(item.textContent));
+        });
+
 
     const fetchItems = useCallback(async (page = 1, limit = itemsPerPage, searchValue = '') => {
         const controller = new AbortController(); // Create an AbortController instance
@@ -323,6 +357,18 @@ const Home = () => {
         });
     };
 
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+    const toggleDropdown = () => {
+      setIsDropdownOpen(!isDropdownOpen);
+    };
+    
+    const handleSelection = (selection) => {
+      console.log(selection);
+      setIsDropdownOpen(false);
+      // Add logic for selecting rows based on selection ('All', 'None', 'Read', 'Unread')
+    };
+
     return (
         <div className={"content"}>
             <div className = "contentUtilty">
@@ -381,7 +427,8 @@ const Home = () => {
                     <button className="pagination-button" onClick={() => goToPage(totalPages)}>{'>>'}</button>
                     </div>
                     <div className ={"rowsPerPage-dropdown"}>
-                        <label>Rows PP</label>
+                        <label>Rows PP  </label>
+                       
                         <select value={itemsPerPage} onChange={handleItemsPerPageChange}>
                             <option value="25">25</option>
                             <option value="50">50</option>
@@ -390,17 +437,27 @@ const Home = () => {
                         </select>
                     </div>
                 </div>
-                <div className={"menuField"}>
-                    <input type="checkbox"></input>
-                    <div>Master Code</div>
-                    <div>Old Code</div>
-                    <div>SKU</div>
-                    <div>Attr1</div>
-                    <div>Val1</div>
-                    <div>Attr2</div>
-                    <div>Val2</div>
-                    <div>Stock Qty</div>
-                </div>
+                {/*<div className={"menuFieldContainer"}>*/}
+                    <div className={"menuField"}>
+                        <div className="dropDown">
+                            <input type="checkbox" id="dropdown-checkbox" />
+                            <label for="doprdown-checkbox" class="dropdown-label">▼</label>
+                            <div className="dropdown-content">
+                                    <div onClick="selectDropdownItem('masterCode')">Master Code</div>
+                                    <div onClick="selectDropdownItem('oldCode')">Old Code</div>
+                                    <div onClick="selectDropdownItem('sku')">SKU</div>
+                                </div>
+                        </div>
+                        <div>Master Code</div>
+                        <div>Old Code</div>
+                        <div>SKU</div>
+                        <div>Attr1</div>
+                        <div>Val1</div>
+                        <div>Attr2</div>
+                        <div>Val2</div>
+                        <div>Stock Qty</div>
+                    </div>
+                {/*</div>*/}
                 <div className={"scrollable"}>
                     {filteredItems.map((item, index) => (
                         <div
@@ -410,14 +467,17 @@ const Home = () => {
                             onMouseEnter={() => setHoveredRow(item.sku)}
                             onMouseLeave={() => setHoveredRow(null)}
                             style={{
-                                backgroundColor: selectedRow === item.sku ? 'lightblue' : hoveredRow === item.sku ? 'lightgrey' : 'white',
-                                alignItems: "flex-start"                                }}> {/* Apply background color based on selection */}
+                                backgroundColor: selectedRow === item.sku ? 'lightblue' : hoveredRow === item.sku ? 'lightgrey' : 'white'
+                                }}> {/* Apply background color based on selection */}
                             <input
+                                className="checkbox-top-align"
                                 type="checkbox"
-                                checked={selectedItems.includes(item.sku)}
-                                onChange={() => handleCheckboxChange(item.sku)}
-                            />                                                    
+                                checked={selectedItems.includes(item.masterCode)}
+                                onChange={() => handleCheckboxChange(item.masterCode)}
+                            />
+                                                                                
                             <div
+                                style={{ marginLeft: '6px' }} /* Inline styling to ensure the space is 3px */
                                 onMouseEnter={() => {
                                     setIsMouseOver(true)
                                     setDynamicMessage('masterCode was double clicked')
@@ -450,18 +510,16 @@ const Home = () => {
                             <div>{item.Attribute2}</div>
                             <div>{item.Value2}</div>
                             <div className="qty-container">
-                                {item.inStock ? (
-                                    <div className="qty-item">
-                                        {item.inStock.inStockTotal}
-                                        <div className={`tooltip ${index < 5 ? 'tooltip-below' : 'tooltip-above'}`}>
-                                            <div>Showroom: {item.inStock.showroom}</div>
-                                            <div>QC: {item.inStock.qc}</div>
-                                            <div>Shelf: {item.inStock.shelf}</div>
-                                        </div>
-                                    </div>
-                                ) : (
-                                    <div>No Stock Data Available</div>
-                                )}
+                                {item.itemQty.map((qty, idx) => (
+                                      <div key={idx} className="qty-item">
+                                          {qty.itemQty}
+                                          <div className="tooltip">
+                                              <div>On Order Qty: {qty.onOrderQty}</div>
+                                              <div>QC Qty: {qty.qcQty}</div>
+                                              <div>Trashy Trashybox Qty: {qty.trashyTrashybox}</div>
+                                          </div>
+                                      </div>
+                                ))}
                             </div>
                         </div>
                     ))} 

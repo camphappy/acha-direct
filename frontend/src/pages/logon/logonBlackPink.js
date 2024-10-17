@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
-import Logobar from '../../components/Logobar';
-import '../../styles/itemMgmt.css';           //Item Management screen
-import ItemMgmt from '../item/itemManagement';
+//import Logobar from '../../components/Logobar';
+//import '../../styles/itemMgmt.css';           //Item Management screen
+//import ItemMgmt from '../item/itemManagement';
 
 
-const LogonFrm = () => {
+const LogonFrm = ({onLogin}) => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [selectedImage, setSelectedImage] = useState(null);
-    const [isLoggedIn, setIsLoggedIn] = useState(false); // Track login status
+    const [isLoggedIn, setIsLoggedIn] = useState(false); // Track login status*/}
 
     const handleLogin = (e) => {
         e.preventDefault();
@@ -17,7 +17,7 @@ const LogonFrm = () => {
         if (selectedImage === 'LisaBlackPink' && username && password) {
             // Placeholder logic for launching app.js (replace this with actual logic)
             console.log('Logging in:', username, password);
-            setIsLoggedIn(true); // Set login status to true
+            onLogin();
         } else {
             alert('Please select the first image and fill in both fields to login');
         }
@@ -27,14 +27,14 @@ const LogonFrm = () => {
         setSelectedImage(imageId);
     };
 
-    if (isLoggedIn) {
+    {/*if (isLoggedIn) {
         return (
         <>
         <Logobar />  
         <ItemMgmt /> 
         </>
         )
-    }
+    } */}
 
     return (
         <div className="logon-container">

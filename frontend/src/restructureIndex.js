@@ -1,12 +1,12 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import './styles/itemMgmt.css';
-import App from './App';
 
+
+import LogonApp from './LogonApp';        //import the LogonApp into this module
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(
+root.render(                              //Launch the LogonA
   <React.StrictMode>
-    <App />
+    <LogonApp />
   </React.StrictMode>
 );

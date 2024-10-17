@@ -1,6 +1,9 @@
 //Includes page listing.
 import React, { useEffect, useState, useRef, useCallback} from 'react';
 import debounce from 'lodash.debounce';
+import lSidebar from '../../../components/common/lSidebar.json';
+
+
 
 const Home = () => {
     const [items, setItems] = useState([]);
@@ -21,6 +24,9 @@ const Home = () => {
     const [searchText, setSearchText] = useState(''); // Search text state
     const [isSearching, setIsSearching] = useState(false); // Track if a search is active
     const [fileSelected, setFileSelected] = useState(null); // New state for file upload
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const [editLevel, setEditLevel] = useState(''); // Track the selected edit level
+
     const magnifierRef = useRef(null);
     const containerRef = useRef(null);
     const images = [
@@ -40,14 +46,12 @@ const Home = () => {
     };
 
     const fetchItems = useCallback(async (page = 1, limit = itemsPerPage, searchValue = '') => {
-        const controller = new AbortController(); // Create an AbortController instance
-        const signal = controller.signal; // Get the signal to pass to fetch
         try {
             let url = `/acha-kvell/item?page=${page}&limit=${limit}`;
             if (searchValue.trim() !== '') {
                 url = `/acha-kvell/itemSpecial/search?reqmasterCode=${searchValue}&page=${page}&limit=${limit}`;
             }
-            const response = await fetch(url, { signal }); // Pass the signal to fetch
+            const response = await fetch(url);
             if (!response.ok) {
                 throw new Error('Failed to fetch items');
             }
@@ -65,15 +69,9 @@ const Home = () => {
                 window.alert('No data found');
             }
         } catch (error) {
-            if (error.name === 'AbortError') {
-                console.log('Fetch aborted');
-            } else {
-                console.error('Error fetching item details:', error);
-            }
-        }
-    
-        return () => controller.abort();
-    }, []);
+            console.error('Error fetching items:', error);
+        }    
+    }, [itemsPerPage]);
 
     const handleRowClick = async (currentSku) => {
         try {
@@ -161,10 +159,6 @@ const Home = () => {
    
     const handleSearchSubmit = useCallback(async (e) => {
         e.preventDefault();
-
-        const controller = new AbortController();
-        const signal = controller.signal;
-    
         
         // Convert searchText to uppercase
         const upperCaseSearchText = searchText.trim().toUpperCase();
@@ -198,18 +192,12 @@ const Home = () => {
             } else {
                 window.alert('No data found')
             }
-        } catch (error) {
-            if (error.name === 'AbortError') {
-                console.log('Search aborted');
-            } else {
-                console.error('Error fetching items:', error);
-            }
         }
+        catch (error) {
+                console.error('Error fetching items:', error);
+        }
+    }, [itemsPerPage, searchText]);
     
-        return () => controller.abort(); // Abort previous request if a new one is initiated
-    }, [searchText, itemsPerPage, handleRowClick]);    
-
-
     const handleSearchChange = (e) => {
         setSearchText(e.target.value);
         console.log('Search text changed:', e.target.value);
@@ -297,9 +285,6 @@ const Home = () => {
                 window.alert('Error: No data received from the server');
             }
 
-            //if (backendUpdateResponse.responseNo = "200") {
-            //    window.alert(`${backendUpdateResponse.message}`);
-            //}
         }
         catch (error) {
             console.error('Error:', error);
@@ -309,19 +294,22 @@ const Home = () => {
         //window.alert('File upload will proceed.');
     };
 
-    const [selectedItems, setSelectedItems] = useState([]);
-
-    const handleCheckboxChange = (masterCode) => {
-    setSelectedItems((prevSelectedItems) => {
-        if (prevSelectedItems.includes(masterCode)) {
-            // If already selected, remove it
-            return prevSelectedItems.filter((code) => code !== masterCode);
-        } else {
-            // Otherwise, add it to the selected items
-            return [...prevSelectedItems, masterCode];
-        }
-        });
-    };
+    const CheckboxDropdown = () => {
+        const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+        const [selectedOption, setSelectedOption] = useState('None');
+      
+        // Toggles the visibility of the dropdown
+        const toggleDropdown = () => {
+          setIsDropdownOpen(!isDropdownOpen);
+        };
+      
+        // Handles the selection of an option
+        const handleSelection = (option) => {
+          setSelectedOption(option);
+          setIsDropdownOpen(false); // Close the dropdown after selection
+          console.log(`Selected: ${option}`);
+        };
+      
 
     return (
         <div className={"content"}>
@@ -391,15 +379,35 @@ const Home = () => {
                     </div>
                 </div>
                 <div className={"menuField"}>
-                    <input type="checkbox"></input>
-                    <div>Master Code</div>
-                    <div>Old Code</div>
-                    <div>SKU</div>
-                    <div>Attr1</div>
-                    <div>Val1</div>
-                    <div>Attr2</div>
-                    <div>Val2</div>
-                    <div>Stock Qty</div>
+                    <div className="checkbox-dropdown-container">                     
+                        <input 
+                            type="checkbox" 
+                            id="standalone-checkbox"
+                            onChange={(e) => console.log(e.target.checked)} // For now, just logs checkbox status
+                        />
+
+                        
+                        <label htmlFor="dropdown-checkbox" className="dropdown-arrow" onClick={toggleDropdown}>▼</label>
+
+                        {isDropdownOpen && (
+                            <div className="tooltip dropdown-menu">
+                                <div onClick={() => handleSelection('Master Code')}>Master Code</div>
+                                <div onClick={() => handleSelection('Old Code')}>Old Code</div>
+                                <div onClick={() => handleSelection('SKU')}>SKU</div>
+                                <div onClick={() => handleSelection('None')}>None</div>
+                            </div>
+                        )}
+                    </div>
+                    <div className="menuFieldList">
+                        <div>Master Code</div>
+                        <div>Old Code</div>
+                        <div>SKU</div>
+                        <div>Attr1</div>
+                        <div>Val1</div>
+                        <div>Attr2</div>
+                        <div>Val2</div>
+                        <div>Stock Qty</div>
+                    </div>
                 </div>
                 <div className={"scrollable"}>
                     {filteredItems.map((item, index) => (
@@ -410,13 +418,8 @@ const Home = () => {
                             onMouseEnter={() => setHoveredRow(item.sku)}
                             onMouseLeave={() => setHoveredRow(null)}
                             style={{
-                                backgroundColor: selectedRow === item.sku ? 'lightblue' : hoveredRow === item.sku ? 'lightgrey' : 'white',
-                                alignItems: "flex-start"                                }}> {/* Apply background color based on selection */}
-                            <input
-                                type="checkbox"
-                                checked={selectedItems.includes(item.sku)}
-                                onChange={() => handleCheckboxChange(item.sku)}
-                            />                                                    
+                                backgroundColor: selectedRow === item.sku ? 'lightblue' : hoveredRow === item.sku ? 'lightgrey' : 'white'
+                                }}> {/* Apply background color based on selection */}
                             <div
                                 onMouseEnter={() => {
                                     setIsMouseOver(true)
@@ -450,18 +453,16 @@ const Home = () => {
                             <div>{item.Attribute2}</div>
                             <div>{item.Value2}</div>
                             <div className="qty-container">
-                                {item.inStock ? (
-                                    <div className="qty-item">
-                                        {item.inStock.inStockTotal}
-                                        <div className={`tooltip ${index < 5 ? 'tooltip-below' : 'tooltip-above'}`}>
-                                            <div>Showroom: {item.inStock.showroom}</div>
-                                            <div>QC: {item.inStock.qc}</div>
-                                            <div>Shelf: {item.inStock.shelf}</div>
-                                        </div>
-                                    </div>
-                                ) : (
-                                    <div>No Stock Data Available</div>
-                                )}
+                                {item.itemQty.map((qty, idx) => (
+                                      <div key={idx} className="qty-item">
+                                          {qty.itemQty}
+                                          <div className="tooltip">
+                                              <div>On Order Qty: {qty.onOrderQty}</div>
+                                              <div>QC Qty: {qty.qcQty}</div>
+                                              <div>Trashy Trashybox Qty: {qty.trashyTrashybox}</div>
+                                          </div>
+                                      </div>
+                                ))}
                             </div>
                         </div>
                     ))} 
