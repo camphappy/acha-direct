@@ -1,38 +1,52 @@
 //~/MernStart/backend/controllers/itemController.js
-const Item = require('../models/itemModel')
+const Item = require('../models/itemModel2')
 const mongoose = require('mongoose')
 const fs = require('fs');
 const path = require('path');
 
 // Get all items with pagination
+// Get all items with pagination and only the primary SKU
 const getItems = async (req, res) => {
-    const { page = 1, limit = itemsPerPage } = req.query; // Default to page 1 and limit set by itemsPerPage
+    const { page = 1, limit = itemsPerPage } = req.query; // Default to page 1 and limit 100
+
     try {
-        // Fetch items with pagination
-        const items = await Item.find({})
-            .sort({ masterCode: 1, oldCode: 1 }) // Sort by masterCode and oldCode
-            .skip((page - 1) * limit)
-            .limit(Number(limit))
-            .select('-__v'); // Exclude version key if you don't need it
+        const items = await Item.aggregate([
+            // Add the primary SKU by accessing the last element in the SKU array
+            {
+                $addFields: {
+                    primarySku: { $arrayElemAt: ["$sku", -1] } // Access the last element in the SKU array
+                }
+            },
+            // Project the fields you want to return, including the filtered primarySku
+            {
+                $project: {
+                    masterCode: 1,
+                    oldCode: 1,
+                    "sku.sku": "$primarySku.sku",  // Map primarySku.sku to sku.sku
+                    "sku.dateSKUChange": "$primarySku.dateSKUChange",
+                    "sku.qtyInStock": "$primarySku.qtyInStock"
+                }
+            },
+            // Sort by masterCode, oldCode, and primary SKU
+            { $sort: { masterCode: 1, oldCode: 1, "primarySku.sku": 1 } },
+            // Pagination
+            { $skip: (page - 1) * limit },
+            { $limit: Number(limit) }
+        ]);
 
-        // Map through items to filter SKUs
-        const modifiedItems = items.map(item => ({
-            ...item.toObject(), // Convert Mongoose document to plain object
-            sku: item.sku.filter(sku => sku.isPrimary === true) // Filter for primary SKUs
-        }));
-
+        // Count total items for pagination
         const totalItems = await Item.countDocuments({});
 
         res.status(200).json({
-            items: modifiedItems,
+            items,
             currentPage: Number(page),
             totalPages: Math.ceil(totalItems / limit),
         });
     } catch (error) {
-        console.error(error); // Log error for debugging
         res.status(500).json({ error: 'Call IT. Internal Server Error' });
     }
 };
+
 
 // Get a single item
 const getItem = async (req, res) => {
@@ -54,38 +68,52 @@ const getItem = async (req, res) => {
             return res.status(404).json({ error: 'Single Item not found' });
         }
 
-        // Filter out SKUs to only include those where isPrimary is true
-        const primarySKUs = item.sku.filter(sku => sku.isPrimary === true);
+        // Check if the last SKU is primary
+        const primarySKU = item.sku[item.sku.length - 1];
+        if (primarySKU && primarySKU.isPrimary === 'T') {
 
-        // Construct the path to the file in frontend/assets/inventoryPics
-        const filePath = path.join(__dirname, '../..', 'backend', 'public');
-        const fileUrl = `/assets/fullInventoryPics/${item.masterCode}.jpg`;
+            // Construct the path to the file in frontend/assets/inventoryPics
+            const filePath = path.join(__dirname, '../..', 'backend', 'public');
+            const fileUrl = `/assets/fullInventoryPics/${item.masterCode}.jpg`;
 
-        // Check if the file exists
-        fs.access(filePath, fs.constants.F_OK, (err) => {
-            if (err) {
-                // File does not exist
-                return res.status(200).json({
-                    item: {
-                        ...item.toObject(), // Convert Mongoose document to plain object
-                        sku: primarySKUs // Include only primary SKUs in response
-                    },
-                    imageExists: false,
-                    fileLocation: fileUrl,
-                    errorMessage: 'Image directory is bad or file not found',
-                });
-            } else {
-                // File exists
-                return res.status(200).json({
-                    item: {
-                        ...item.toObject(), // Convert Mongoose document to plain object
-                        sku: primarySKUs // Include only primary SKUs in response
-                    },
-                    imageExists: true,
-                    fileLocation: fileUrl,
-                });
-            }
-        });
+            // Check if the file exists
+            fs.access(filePath, fs.constants.F_OK, (err) => {
+                if (err) {
+                    // File does not exist
+                    return res.status(200).json({
+                        item: {
+                            ...item.toObject(), // Convert Mongoose document to plain object
+                            sku: [primarySKU] // Include only primary SKUs in response
+                        },
+                        imageExists: false,
+                        fileLocation: fileUrl,
+                        errorMessage: 'Image directory is bad or file not found',
+                    });
+                } else {
+                    // File exists
+                    return res.status(200).json({
+                        item: {
+                            ...item.toObject(), // Convert Mongoose document to plain object
+                            sku: [primarySKU] // Include only primary SKUs in response
+                        },
+                        imageExists: true,
+                        fileLocation: fileUrl,
+                    });
+                }
+            });
+        } else {
+            // If the last SKU is not primary, return the item with no primary SKU
+            return res.status(200).json({
+                item: {
+                    ...item.toObject(),
+                    sku: [] // No primary SKU to return
+                },
+                imageExists: false,
+                fileLocation: '/assets/fullInventoryPics/' + item.masterCode + '.jpg',
+                errorMessage: 'No primary SKU found for this item',
+            });
+        }
+
     } catch (error) {
         console.error('Error fetching item by id:', error);
         res.status(500).json({ error: 'Internal Server Error' });

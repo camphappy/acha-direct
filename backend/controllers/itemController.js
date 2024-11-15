@@ -20,7 +20,7 @@ const getItems = async (req, res) => {
                 totalPages: Math.ceil(totalItems / limit),
             });
     } catch (error) {
-        res.status(500).json({ error: 'Internal Server Error' });
+        res.status(500).json({ error: 'Call IT. Internal Server Error' });
     }
 };
 

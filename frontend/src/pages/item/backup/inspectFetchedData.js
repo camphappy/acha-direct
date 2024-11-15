@@ -2,7 +2,7 @@
 import React, { useEffect, useState, useRef, useCallback} from 'react';
 import debounce from 'lodash.debounce';
 
-const Home = () => {
+const InspectFetchedData = () => {
     const [items, setItems] = useState([]);
     const [selectedItem, setSelectedItem] = useState(null);
     const [filteredItems, setFilteredItems] = useState([]);
@@ -12,7 +12,7 @@ const Home = () => {
     const [imageExists, setImageExists] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
-    const [itemsPerPage, setItemsPerPage] = useState(50); // Default value
+    const [itemsPerPage, setItemsPerPage] = useState(12); // Default value
     const [selectedRow, setSelectedRow] = useState(null); // new variable to track selected row in the page
     const [hoveredRow, setHoveredRow] = useState(null); // new variable to track hovered row
     const [isMouseOver, setIsMouseOver] = useState(false); // Track mouse position
@@ -42,6 +42,7 @@ const Home = () => {
     const fetchItems = useCallback(async (page = 1, limit = itemsPerPage, searchValue = '') => {
         const controller = new AbortController(); // Create an AbortController instance
         const signal = controller.signal; // Get the signal to pass to fetch
+        
         try {
             let url = `/acha-kvell/item?page=${page}&limit=${limit}`;
             if (searchValue.trim() !== '') {
@@ -51,16 +52,22 @@ const Home = () => {
             if (!response.ok) {
                 throw new Error('Failed to fetch items');
             }
+            
             const thisJson = await response.json();
             setItems(thisJson.items);
+            //console.log(items);
             setFilteredItems(thisJson.items); // Initialize filtered items
             setCurrentPage(page);
-            setTotalPages(thisJson.totalPages || Math.ceil(thisJson.items.length / limit)); // Update total pages);
+            setTotalPages(thisJson.totalPages || Math.ceil(thisJson.items.length / limit)); // Update total pages
+            
             if (thisJson.items.length > 0) {
-                handleRowClick(thisJson.items[0].sku);
-                setCurrentMasterCode(thisJson.items[0].masterCode);
-                setSku(thisJson.items[0].sku);
-                setSelectedRow(currentSku);
+                const firstItem = thisJson.items[0];
+                const primarySku = firstItem.sku.find((sku) => sku.isPrimary === 'T') || firstItem.sku[0];
+    
+                handleRowClick(primarySku);
+                setCurrentMasterCode(firstItem.masterCode);
+                setSku([primarySku]); // Set only the primary SKU in the state
+                setSelectedRow(primarySku.sku); // Set primary SKU as the selected row for display
             } else {
                 window.alert('No data found');
             }
@@ -73,160 +80,32 @@ const Home = () => {
         }
     
         return () => controller.abort();
-    }, []);
+    }, [itemsPerPage]);
 
     const handleRowClick = async (currentSku) => {
         try {
             const response = await fetch(`/acha-kvell/item/${currentSku}`);
-
+    
             if (!response.ok) {
                 throw new Error('Failed to fetch item details');
             }
-            const thisJson = await response.json();
-                setSelectedItem(thisJson);
-                setCurrentMasterCode(thisJson.masterCode);
-                setSku(thisJson.sku);
-                setFileLocation(thisJson.fileLocation);
-                setImageExists(thisJson.imageExists);
-                setSelectedRow(currentSku); // Update the selectedRow state with the clicked sku   
-            } catch (error) {
-                console.error('Error fetching item details:', error);
-            }
-
-    };
-
-    const goToPage = debounce((page) => {
-        page = parseInt(page, 10);
-        if (page >= 1 && page <= totalPages) {
-            setCurrentPage(page);
-        }
-    }, 300);
-
-    const previousPage = debounce(() => {
-        if (currentPage > 1) {
-            setCurrentPage(currentPage - 1);
-        }
-    }, 300);
-
-    const nextPage = debounce(() => {
-        if (currentPage < totalPages) {
-            handleRowClick(currentMasterCode,)
-            setCurrentPage(currentPage + 1);
-        }
-    }, 300);
-
-    useEffect(() => {
-        fetchItems(currentPage, itemsPerPage, isSearching ? searchText : '');
-    }, [currentPage, itemsPerPage, fetchItems, isSearching, searchText]);
-
-    const handleItemsPerPageChange = (e) => {
-        const newItemsPerPage = parseInt(e.target.value, 10);
-        setItemsPerPage(newItemsPerPage);
-        if (isSearching && searchText.trim() !== '') {
-            fetchItems(1, newItemsPerPage, searchText); // Fetch filtered items based on the new itemsPerPage value
-        } else {
-            fetchItems(1, newItemsPerPage); // Fetch all items based on the new itemsPerPage value
-        }
-    };
-
-    const handleMouseMove = (e) => {
-        const magnifier = magnifierRef.current;
-        const container = containerRef.current;
-        const img = container.querySelector('img');
-        const rect = container.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
-
-        if (x > 0 && y > 0 && x < rect.width && y < rect.height) {
-            magnifier.style.display = 'block';
-            magnifier.style.left = `${x - magnifier.offsetWidth / 3}px`;
-            magnifier.style.top = `${y - magnifier.offsetHeight / 3}px`;
-            magnifier.style.backgroundImage = `url(${img.src})`;
-            magnifier.style.backgroundPosition = `-${x * 1.05 - magnifier.offsetWidth / 2}px -${y * 1.05 - magnifier.offsetHeight / 2}px`;
-        } else {
-            magnifier.style.display = 'none';
-        }
-    };
-
-    const handleMouseLeave = () => {
-        const magnifier = magnifierRef.current;
-        magnifier.style.display = 'none';
-    };
-
-    const handleDoubleClick = useCallback((dynamicMessage, title) => {
-        const newTab = window.open('', '_blank');
-        newTab.document.write(dynamicMessage);
-        newTab.document.title = title;
-    }, []);
-   
-    const handleSearchSubmit = useCallback(async (e) => {
-        e.preventDefault();
-
-        const controller = new AbortController();
-        const signal = controller.signal;
     
-        
-        // Convert searchText to uppercase
-        const upperCaseSearchText = searchText.trim().toUpperCase();
-    
-        // Check if the searchText is empty
-        if (upperCaseSearchText === '') {
-            window.alert('Enter data in Search field');
-            return;}
-
-        try {
-            const response = await fetch(`/acha-kvell/itemSpecial/search?reqmasterCode=${upperCaseSearchText}`);
-            if (response.status === 404) {
-                const data = await response.json();
-                window.alert(data.message);
-                return;
-            }
-            if (!response.ok) {
-                throw new Error('Failed to fetch items');
-            }
             const thisJson = await response.json();
-            if (thisJson.items.length > 0) {
-            setIsSearching(true);
-            setFilteredItems(thisJson.items); // Initialize filtered items
-            setItems(thisJson.items);
-            setCurrentPage(1);
-            setTotalPages(Math.ceil(thisJson.items.length / itemsPerPage)); // Update the total pages based on filtered results
-                handleRowClick(thisJson.items[0].sku);
-                setCurrentMasterCode(thisJson.items[0].masterCode);
-                setSku(thisJson.items[0].sku);
-                setSelectedRow(currentSku);
-            } else {
-                window.alert('No data found')
-            }
+            
+            // Find the specific SKU object from the `sku` array that matches `currentSku`
+            const selectedSku = thisJson.sku.find(skuObj => skuObj.sku === currentSku);
+    
+            setSelectedItem(thisJson);
+            setCurrentMasterCode(thisJson.masterCode);
+            setSku(selectedSku); // Set the specific SKU object
+            setFileLocation(thisJson.fileLocation);
+            setImageExists(thisJson.imageExists);
+            setSelectedRow(currentSku); // Update the selectedRow state with the clicked sku   
         } catch (error) {
-            if (error.name === 'AbortError') {
-                console.log('Search aborted');
-            } else {
-                console.error('Error fetching items:', error);
-            }
+            console.error('Error fetching item details:', error);
         }
-    
-        return () => controller.abort(); // Abort previous request if a new one is initiated
-    }, [searchText, itemsPerPage, handleRowClick]);    
-
-
-    const handleSearchChange = (e) => {
-        setSearchText(e.target.value);
-        console.log('Search text changed:', e.target.value);
     };
-
-    useEffect(() => {
-        const handleKeyDown = (event) => {
-            if (event.key === 'Enter' && isMouseOver) {
-                handleDoubleClick(dynamicMessage, title);
-            }
-        };
-        document.addEventListener('keydown', handleKeyDown);
-        return () => {
-            document.removeEventListener('keydown', handleKeyDown);
-        };
-    }, [isMouseOver, dynamicMessage, title, handleDoubleClick]);
-
+    
     const handleFileSelect = (e) => {
         const selectedFile = e.target.files[0];
         setFileSelected(selectedFile);
@@ -238,7 +117,7 @@ const Home = () => {
 
         // Log the file information to the console
         console.log('File selected:', selectedFile);
-    };  
+    };
 
     const handleUpload = async () => {
         if (!fileSelected) {
@@ -323,24 +202,138 @@ const Home = () => {
         });
     };
 
+    const handleSearchSubmit = useCallback(async (e) => {
+        e.preventDefault();
+
+        const controller = new AbortController();
+        const signal = controller.signal;
+    
+        
+        // Convert searchText to uppercase
+        const upperCaseSearchText = searchText.trim().toUpperCase();
+    
+        // Check if the searchText is empty
+        if (upperCaseSearchText === '') {
+            window.alert('Enter data in Search field');
+            return;}
+
+        try {
+            const response = await fetch(`/acha-kvell/itemSpecial/search?reqmasterCode=${upperCaseSearchText}`);
+            if (response.status === 404) {
+                const data = await response.json();
+                window.alert(data.message);
+                return;
+            }
+            if (!response.ok) {
+                throw new Error('Failed to fetch items');
+            }
+            const thisJson = await response.json();
+            if (thisJson.items.length > 0) {
+            setIsSearching(true);
+            setFilteredItems(thisJson.items); // Initialize filtered items
+            setItems(thisJson.items);
+            setCurrentPage(1);
+            setTotalPages(Math.ceil(thisJson.items.length / itemsPerPage)); // Update the total pages based on filtered results
+                handleRowClick(thisJson.items[0].sku);
+                setCurrentMasterCode(thisJson.items[0].masterCode);
+                setSku(thisJson.items[0].sku);
+                setSelectedRow(currentSku);
+            } else {
+                window.alert('No data found')
+            }
+        } catch (error) {
+            if (error.name === 'AbortError') {
+                console.log('Search aborted');
+            } else {
+                console.error('Error fetching items:', error);
+            }
+        }
+    
+        return () => controller.abort(); // Abort previous request if a new one is initiated
+    }, [searchText, itemsPerPage, handleRowClick]);    
+
+
+    const handleSearchChange = (e) => {
+        setSearchText(e.target.value);
+        console.log('Search text changed:', e.target.value);
+    };
+
+    const handleDoubleClick = useCallback((dynamicMessage, title) => {
+        const newTab = window.open('', '_blank');
+        newTab.document.write(dynamicMessage);
+        newTab.document.title = title;
+    }, []);
+
+    useEffect(() => {
+        const handleKeyDown = (event) => {
+            if (event.key === 'Enter' && isMouseOver) {
+                handleDoubleClick(dynamicMessage, title);
+            }
+        };
+        document.addEventListener('keydown', handleKeyDown);
+        return () => {
+            document.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [isMouseOver, dynamicMessage, title, handleDoubleClick]);
+
+   
+    const goToPage = debounce((page) => {
+        page = parseInt(page, 10);
+        if (page >= 1 && page <= totalPages) {
+            setCurrentPage(page);
+        }
+    }, 300);
+
+    const previousPage = debounce(() => {
+        if (currentPage > 1) {
+            setCurrentPage(currentPage - 1);
+        }
+    }, 300);
+
+    const nextPage = debounce(() => {
+        if (currentPage < totalPages) {
+            handleRowClick(currentMasterCode,)
+            setCurrentPage(currentPage + 1);
+        }
+    }, 300);
+
+    useEffect(() => {
+        fetchItems(currentPage, itemsPerPage, isSearching ? searchText : '');
+    }, [currentPage, itemsPerPage, fetchItems, isSearching, searchText]);
+
+    const handleItemsPerPageChange = (e) => {
+        const newItemsPerPage = parseInt(e.target.value, 10);
+        setItemsPerPage(newItemsPerPage);
+        if (isSearching && searchText.trim() !== '') {
+            fetchItems(1, newItemsPerPage, searchText); // Fetch filtered items based on the new itemsPerPage value
+        } else {
+            fetchItems(1, newItemsPerPage); // Fetch all items based on the new itemsPerPage value
+        }
+    };
+
+
+    
     return (
-        <section id='mainItemManagement' className={"content"}>
+        <div className={"content"}>
             <div className = "contentUtilty">
                 <p><h2>Utility Best</h2></p>
                 <div>
-                <p>Bulk Update Here</p>
+                    <p>Bulk Update Here</p>
                     <input
                         type="file"
                         accept=".csv"
-                        onChange={handleFileSelect}
-                    /><br/>
-                    <button onClick={handleUpload}>Upload and Process</button>
-                    <div>
-                    <button onClick={handleUpload}>Upload New Pics to Magento</button>
-                    </div>
+                        onChange={handleFileSelect}/><br/>
+                    <button onClick={handleUpload}> Upload and Process</button><br/>
+                    <button onClick={handleUpload}>Upload New Pics to Magento</button><br/>
                 </div>
             </div>
-            <div className={"contentLeft"}>
+            {/*
+            <div>
+                <h2>Data Structure Check</h2>
+                <pre>{JSON.stringify(items, null, 2)}</pre>
+            </div>
+            */}
+        <div className={"contentLeft"}>
             {/*<div className={"contentLeft"} style={dynamicContentLeftBackgroundStyle}> */}
                 <div className="pagination-container"> {/* Existing pagination and item list */}
                     <div>
@@ -439,62 +432,23 @@ const Home = () => {
                                 onDoubleClick={() => handleDoubleClick(dynamicMessage,`oldCode:${item.oldCode}`)}>
                                 {item.oldCode}
                             </div>
-                            <div
-                                onMouseEnter={() => {
-                                setIsMouseOver(true)
-                                setDynamicMessage('sku was double clicked')
-                                }}
-                                onMouseLeave={() => setIsMouseOver(false)}
-                                onDoubleClick={() => handleDoubleClick(dynamicMessage,`sku:${item.sku}`)}>
-                                {item.sku}
-                            </div>
-                            <div>{item.Attribute1}</div>
-                            <div>{item.Value1}</div>
-                            <div>{item.Attribute2}</div>
-                            <div>{item.Value2}</div>
-                            <section id='sectionQty' div className="qty-container">
-                                <div className="qty-item">
-                                    <section>{item.qtyInStock}</section>
-                                    {/*<div className={`tooltip ${index < 5 ? 'tooltip-below' : 'tooltip-above'}`}>*/}
-                                    <div className="tooltip">
-                                        <div>TOTAL: {item.qtyInStock}</div>
-                                        <div>Showroom: {item.qtyShowroom}</div>
-                                        <div>QC: {item.qtyQc}</div>
-                                        <div>Shelf: {item.qtyStock}</div>
-                                    </div>
+                            {item.sku.map((skuObj, skuIndex) => (
+                                <div key={skuObj.sku}
+                                    onMouseEnter={() => {
+                                    setIsMouseOver(true)
+                                    setDynamicMessage('sku was double clicked')
+                                    }}
+                                    onMouseLeave={() => setIsMouseOver(false)}
+                                    onDoubleClick={() => handleDoubleClick(dynamicMessage,`sku:${item.sku}`)}>
+                                    {skuObj.sku}
+                                    {skuObj.isPrimary}
                                 </div>
-                            </section>
+                            ))}
                         </div>
-                    ))} 
+                    ))}
                 </div>
             </div>
-            
-            {imageExists && (
-                <div className="contentRight">
-                    {/* Display the selected item JSON */}
-                    {selectedItem && <pre>{JSON.stringify(selectedItem, null, 2)}</pre>}
-                <div>
-                            {imageExists ? (
-                                <div
-                                className="container"
-                                onMouseMove={handleMouseMove}
-                                onMouseLeave={handleMouseLeave}
-                                ref={containerRef}>
-                                <img
-                                        src={(currentFileLocation)}
-                                        alt={`Master Code not loaded ${currentFileLocation}`}
-                                    />
-                                    <div className="magnifier" ref={magnifierRef}></div>
-                                    {/*{`Current Master Code: ${currentFileLocation}, ${currentMasterCode}`}*/}
-                                </div>
-                            ) : (
-
-                                'Image not found'
-                            )}
-                </div>
-                </div>
-            )}
-        </section>
+        </div>
     );
 };
-export default Home;
+export default InspectFetchedData;

@@ -384,13 +384,13 @@
     z-index: 1;
     bottom: 100%; /* Position the tooltip above the itemQty */
     left: 50%;
-    margin-left: -100px; /* Center the tooltip */
+    margin-left: 100px; /* Center the tooltip */
     opacity: 0;
     transition: opacity 0.3s;
     white-space: nowrap;
   }
   
   .qty-item:hover .tooltip {
-    visibility: visible;
+    display: none;
     opacity: 1;
   }

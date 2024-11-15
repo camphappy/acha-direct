@@ -152,13 +152,13 @@
   }
   
   /* Styling for each row in the list */
-  .rowList {
+  .notNecessary-rowList {
     font-family: 'Lucida Console', sans-serif, Helvetica, sans-serif;
     display: flex;
     padding: 10px;
   }
   
-  .rowList div {
+  .bitNecessary-x-rowList div {
     flex: 1;
     text-align: left;
     border-bottom: 1px solid #bdbcbc;

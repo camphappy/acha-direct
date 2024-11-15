@@ -1,16 +1,28 @@
 const mongoose = require('mongoose')
 
-const itemSchema = new mongoose.Schema({
+const legacySkuSchema = new mongoose.Schema({
+    sku: {type: String, required: true}
+})
+
+ const itemSchema = new mongoose.Schema({
+    _itemID: {
+        type: mongoose.Schema.Types.ObjectId,
+        unique: true,
+        immutable: true, // Ensure it cannot be modified after setting
+    },
     masterCode: {type: String},
     oldCode: {type: String},
     sku: {type: String, required: true},
-}, {timestamps: true , collection: 'item'})
+    legacySku: [legacySkuSchema]
+}, {timestamps: true, collection: 'item'})
+
+// Pre-save hook to set _itemID to the same value as _id before saving
+itemSchema.pre('save', function(next) {
+    if (this.isNew) {
+        this._itemID = this._id; // Set _itemID to the same value as _id
+    }
+    next();
+});
 
 //model based on the above schema (itemSchema)
 module.exports = mongoose.model('Item', itemSchema)
-
-
-//export the model for use on other parts of the application
-// module.exports = {
-//     itemModel
-// }; 

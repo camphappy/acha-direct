@@ -324,7 +324,7 @@ const Home = () => {
     };
 
     return (
-        <section id='mainItemManagement' className={"content"}>
+        <div className={"content"}>
             <div className = "contentUtilty">
                 <p><h2>Utility Best</h2></p>
                 <div>
@@ -452,21 +452,24 @@ const Home = () => {
                             <div>{item.Value1}</div>
                             <div>{item.Attribute2}</div>
                             <div>{item.Value2}</div>
-                            <section id='sectionQty' div className="qty-container">
-                                <div className="qty-item">
-                                    <section>{item.qtyInStock}</section>
-                                    {/*<div className={`tooltip ${index < 5 ? 'tooltip-below' : 'tooltip-above'}`}>*/}
-                                    <div className="tooltip">
-                                        <div>TOTAL: {item.qtyInStock}</div>
-                                        <div>Showroom: {item.qtyShowroom}</div>
-                                        <div>QC: {item.qtyQc}</div>
-                                        <div>Shelf: {item.qtyStock}</div>
+                            <div className="qty-container">
+                                {item.inStock ? (
+                                    <div className="qty-item">
+                                        {item.inStock.inStockTotal}
+                                        <div className={`tooltip ${index < 5 ? 'tooltip-below' : 'tooltip-above'}`}>
+                                            <div>Showroom: {item.inStock.showroom}</div>
+                                            <div>QC: {item.inStock.qc}</div>
+                                            <div>Shelf: {item.inStock.shelf}</div>
+                                        </div>
                                     </div>
-                                </div>
-                            </section>
+                                ) : (
+                                    <div>No Stock Data Available</div>
+                                )}
+                            </div>
                         </div>
                     ))} 
                 </div>
+                  
             </div>
             
             {imageExists && (
@@ -494,7 +497,7 @@ const Home = () => {
                 </div>
                 </div>
             )}
-        </section>
+        </div>
     );
 };
 export default Home;

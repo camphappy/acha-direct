@@ -1,6 +1,7 @@
-import React from 'react';
-const PDFDocument = require('pdfkit');
-const fs = require('fs');
+
+import PDFDocument from 'pdfkit';
+import blobStream from 'blob-stream';
+import React, { useState } from 'react';
 
 const InvoiceGenerator = () => {
   // Set initial state for customer details and line items
@@ -76,7 +77,7 @@ const InvoiceGenerator = () => {
     <div>
       <h1>Invoice Generator</h1>
       <button onClick={generateInvoicePDF}>Generate Invoice PDF</button>
-    </div> 
+    </div>
   );
 };
 

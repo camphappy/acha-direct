@@ -304,54 +304,79 @@
     position: relative;
     display: inline-block;
   }
-  
+ 
+ /*
+ .qty-container, .qty-item, .tooltip {
+    margin: 0;
+    padding: 0;
+    border: none;
+    display: inline-block;
+}
+*/
   .qty-container {
     position: relative;
   }
   
   .qty-item {
-    position: static;
+    position: center;
     display: inline-block;
-    cursor: pointer;
-  }
-  
-  .tooltip {
-    visibility: hidden;
-    width: 200px;
-    background-color: #333333;
-    color: #fff;
-    text-align: center;
-    border-radius: 5px;
-    padding: 5px;
-    position: absolute;
-    z-index: 1000;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    left: 50%;
-    opacity: 0;
-    transition: opacity 0.3s;
-    white-space: nowrap;
-  }
-  
-  .qty-item:hover .tooltip  {
-    visibility: visible;
-    opacity: 1; /*display the text when mouse hovers */
-  }
+    cursor: pointer; /*item is hoverable */
+}
 
+.tooltip {
+  display: none; /* Hidden by default */
+  position: absolute;
+  top: 100%; /* Position below the qty-item */
+  left: 0%;
+  transform: translateX(-50%);
+  padding: 8px;
+  white-space: normal; /* Allow text to wrap */
+  background-color: rgba(0, 0, 0, 0.75);
+  color: #fff;
+  border-radius: 5px;
+  white-space: nowrap;
+  z-index: 10;
+  opacity: 0; /* Initially hidden */
+  transition: opacity 0.2s; /* Smooth fade-in */
+}
+
+/* Show tooltip on hover */
+.qty-item:hover .tooltip {
+  display: block;
+  background-color: rgba(110, 18, 18, 0.75);
+  white-space: normal; /* Allow text to wrap */
+  color: #fff;
+  opacity: 1; /* Show tooltip */
+}
 /* Tooltip above (for records beyond the 5th) */
-.tooltip-above {
-  bottom: 100%; /* Position above the quantity */
-  left: 50%;
-  transform: translateX(-50%);
-  margin-bottom: 1px; /* Space between the tooltip and the quantity */
+.tooltip-below {
+  background-color: rgba(0, 0, 0, 0.75);
+  white-space: normal; /* Allow text to wrap */
+  color: #9be8eb;
+  top: 100%; /* Position below the qty-item */
+  margin-top: 5px;
 }
 
-/* Tooltip below (for the first 5 records) */
-.tooltip-below {
-  top: 100%; /* Position below the quantity */
-  left: 50%;
-  transform: translateX(-50%);
-  margin-top: 1px; /* Space between the tooltip and the quantity */
+/* Alternative Position Above */
+.tooltip-above {
+  bottom: 100%; /* Position above the qty-item */
+  margin-bottom: 5px;
 }
+.tooltip-int {
+  display: none;
+    opacity: 10;
+    transition: opacity 0.3s ease;
+    position: absolute;
+    bottom: 100%; /* Position the tooltip below qty-item */
+    left: 0;
+    background-color: #333;
+    color: #1a0d0d;
+    padding: 5px;
+    border-radius: 5px;
+    white-space: nowrap;
+    z-index: 1;
+}
+
 
 /* Optional: Improve the appearance of the tooltip arrow 
 .tooltip::after {
@@ -377,11 +402,12 @@
 }
 */
 
-/* Container for checkbox and dropdown */
+/* Container for checkbox and dropdown
 .checkbox-dropdown-container .tooltip.dropdown-menu {
   visibility: hidden;
   opacity: 1;
 }
+*/
 
 /* Styles for individual dropdown items */
 .dropdown-menu div {

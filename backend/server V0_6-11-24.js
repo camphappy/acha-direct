@@ -15,8 +15,8 @@ const app = express();
 //const poRoutes = require('./routes/po')
 //const poModel = require('./models/poModel')
 const itemRoute = require('./routes/items')
-const itemFilterRoute = require('./routes/itemSpecial')
-//const fileUpdateRoute = require('./routes/fileUpdate')
+const itemFilterRoute = require('./routes/itemsSpecial')
+const fileUpdateRoute = require('./routes/fileUpdate')
 const itemModel = require('./models/itemModel')
 
 
@@ -38,7 +38,7 @@ app.use((req, res, next) => {
 //app.use('/acha-kvell/po', poRoute)
 app.use('/acha-kvell/item', itemRoute)
 app.use('/acha-kvell/itemSpecial', itemFilterRoute)
-//app.use('/acha-kvell/upload', fileUpdateRoute)
+app.use('/acha-kvell/upload', fileUpdateRoute)
 
 
 //connect to mongodb

@@ -42,6 +42,7 @@ const Home = () => {
     const fetchItems = useCallback(async (page = 1, limit = itemsPerPage, searchValue = '') => {
         const controller = new AbortController(); // Create an AbortController instance
         const signal = controller.signal; // Get the signal to pass to fetch
+        
         try {
             let url = `/acha-kvell/item?page=${page}&limit=${limit}`;
             if (searchValue.trim() !== '') {
@@ -51,16 +52,21 @@ const Home = () => {
             if (!response.ok) {
                 throw new Error('Failed to fetch items');
             }
+            
             const thisJson = await response.json();
             setItems(thisJson.items);
             setFilteredItems(thisJson.items); // Initialize filtered items
             setCurrentPage(page);
-            setTotalPages(thisJson.totalPages || Math.ceil(thisJson.items.length / limit)); // Update total pages);
+            setTotalPages(thisJson.totalPages || Math.ceil(thisJson.items.length / limit)); // Update total pages
+            
             if (thisJson.items.length > 0) {
-                handleRowClick(thisJson.items[0].sku);
-                setCurrentMasterCode(thisJson.items[0].masterCode);
-                setSku(thisJson.items[0].sku);
-                setSelectedRow(currentSku);
+                const firstItem = thisJson.items[0];
+                const primarySku = firstItem.sku.find((sku) => sku.isPrimary === 'T') || firstItem.sku[0];
+    
+                handleRowClick(primarySku);
+                setCurrentMasterCode(firstItem.masterCode);
+                setSku([primarySku]); // Set only the primary SKU in the state
+                setSelectedRow(primarySku); // Set primary SKU as the selected row for display
             } else {
                 window.alert('No data found');
             }
@@ -73,7 +79,7 @@ const Home = () => {
         }
     
         return () => controller.abort();
-    }, []);
+    }, [itemsPerPage]);
 
     const handleRowClick = async (currentSku) => {
         try {
@@ -324,7 +330,7 @@ const Home = () => {
     };
 
     return (
-        <section id='mainItemManagement' className={"content"}>
+        <div className={"content"}>
             <div className = "contentUtilty">
                 <p><h2>Utility Best</h2></p>
                 <div>
@@ -452,21 +458,24 @@ const Home = () => {
                             <div>{item.Value1}</div>
                             <div>{item.Attribute2}</div>
                             <div>{item.Value2}</div>
-                            <section id='sectionQty' div className="qty-container">
-                                <div className="qty-item">
-                                    <section>{item.qtyInStock}</section>
-                                    {/*<div className={`tooltip ${index < 5 ? 'tooltip-below' : 'tooltip-above'}`}>*/}
-                                    <div className="tooltip">
-                                        <div>TOTAL: {item.qtyInStock}</div>
-                                        <div>Showroom: {item.qtyShowroom}</div>
-                                        <div>QC: {item.qtyQc}</div>
-                                        <div>Shelf: {item.qtyStock}</div>
+                            <div className="qty-container">
+                                {item.inStock ? (
+                                    <div className="qty-item">
+                                        {item.inStock.inStockTotal}
+                                        <div className={`tooltip ${index < 5 ? 'tooltip-below' : 'tooltip-above'}`}>
+                                            <div>Showroom: {item.inStock.showroom}</div>
+                                            <div>QC: {item.inStock.qc}</div>
+                                            <div>Shelf: {item.inStock.shelf}</div>
+                                        </div>
                                     </div>
-                                </div>
-                            </section>
+                                ) : (
+                                    <div>No Stock Data Available</div>
+                                )}
+                            </div>
                         </div>
                     ))} 
                 </div>
+                  
             </div>
             
             {imageExists && (
@@ -494,7 +503,7 @@ const Home = () => {
                 </div>
                 </div>
             )}
-        </section>
+        </div>
     );
 };
 export default Home;
