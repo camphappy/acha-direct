@@ -443,3 +443,23 @@
 .dropdown-menu div:hover {
   background-color: #f1f1f1;
 }
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+
+th.menuItemField {
+  background-color: #f2f2f2;
+  text-align: center;
+  font-weight: bold;
+  padding: 10px;
+  border: 1px solid #ccc;
+}
+
+td.menuItemField {
+  text-align: center;
+  padding: 8px;
+  border: 1px solid #ccc;
+}

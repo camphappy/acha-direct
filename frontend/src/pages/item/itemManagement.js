@@ -325,10 +325,10 @@ const Home = () => {
 
     return (
         <section id='mainItemManagement' className={"content"}>
-            <div className = "contentUtilty">
-                <p><h2>Utility Best</h2></p>
+            <section className = "contentUtilty">
+                <h2>Utility Best</h2>
                 <div>
-                <p>Bulk Update Here</p>
+                    <p>Bulk Update Here</p>
                     <input
                         type="file"
                         accept=".csv"
@@ -339,10 +339,9 @@ const Home = () => {
                     <button onClick={handleUpload}>Upload New Pics to Magento</button>
                     </div>
                 </div>
-            </div>
-            <div className={"contentLeft"}>
-            {/*<div className={"contentLeft"} style={dynamicContentLeftBackgroundStyle}> */}
-                <div className="pagination-container"> {/* Existing pagination and item list */}
+            </section>
+            <section className={"contentLeft"}>
+                <section className="pagination-container"> {/* Existing pagination and item list */}
                     <div>
                         <form onSubmit={handleSearchSubmit}>
                             <input
@@ -392,69 +391,70 @@ const Home = () => {
                             <option value="100">100</option>
                         </select>
                     </div>
-                </div>
-                <div className={"menuField"}>
-                    <input type="checkbox"></input>
-                    <div>Master Code</div>
-                    <div>Old Code</div>
-                    <div>SKU</div>
-                    <div>Attr1</div>
-                    <div>Val1</div>
-                    <div>Attr2</div>
-                    <div>Val2</div>
-                    <div>Stock Qty</div>
-                </div>
-                <div className={"scrollable"}>
-                    {filteredItems.map((item, index) => (
-                        <div
-                            key={item.sku}
-                            className={`rowList ${selectedRow === item.sku ? 'selected' : ''}`}
-                            onClick={() => handleRowClick(item.sku)}
-                            onMouseEnter={() => setHoveredRow(item.sku)}
-                            onMouseLeave={() => setHoveredRow(null)}
-                            style={{
-                                backgroundColor: selectedRow === item.sku ? 'lightblue' : hoveredRow === item.sku ? 'lightgrey' : 'white',
-                                alignItems: "flex-start"                                }}> {/* Apply background color based on selection */}
-                            <input
-                                type="checkbox"
-                                checked={selectedItems.includes(item.sku)}
-                                onChange={() => handleCheckboxChange(item.sku)}
-                            />                                                    
-                            <div
-                                onMouseEnter={() => {
+                </section>
+                <section>
+                <table>
+                    <thead>
+                        <tr>
+                            <th><input type="checkbox"></input></th>
+                            <th>Master Code</th>
+                            <th>Old Code</th>
+                            <th>SKU</th>
+                            <th>Attr1</th>
+                            <th>Val1</th>
+                            <th>Attr2</th>
+                            <th>Val2</th>
+                            <th>Stock Qty</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                       {filteredItems.map((item, index) => (
+                            <tr
+                                key={item.sku}
+                                className={`rowList ${selectedRow === item.sku ? 'selected' : ''}`}
+                                onClick={() => handleRowClick(item.sku)}
+                                onMouseEnter={() => setHoveredRow(item.sku)}
+                                onMouseLeave={() => setHoveredRow(null)}
+                                style={{
+                                   backgroundColor: selectedRow === item.sku ? 'lightblue' : hoveredRow === item.sku ? 'lightgrey' : 'white',
+                                   alignItems: "flex-start"}}> {/* Apply background color based on selection */}
+                                <td> <input 
+                                        type="checkbox" 
+                                        checked={selectedItems.includes(item.sku)} 
+                                        onChange={() => handleCheckboxChange(item.sku)}/>
+                                </td>
+                                <td> onMouseEnter={() => {
                                     setIsMouseOver(true)
                                     setDynamicMessage('masterCode was double clicked')
                                     setTitle(item.masterCode)
-                                }}
-                                onMouseLeave={() => setIsMouseOver(false)}
-                                onDoubleClick={() => handleDoubleClick(dynamicMessage,`masterCode:${item.masterCode}`)}>
-                                {item.masterCode}
-                            </div>
-                            <div
-                                onMouseEnter={() => {
+                                    }}
+                                    onMouseLeave={() => setIsMouseOver(false)}
+                                    onDoubleClick={() => handleDoubleClick(dynamicMessage,`masterCode:${item.masterCode}`)}>
+                                    {item.masterCode}
+                                </td>
+                                <td
+                                    onMouseEnter={() => {
                                     setIsMouseOver(true)
-                                    setDynamicMessage('oldCode was double clicked')
-                                }}
-                                onMouseLeave={() => setIsMouseOver(false)}
-                                onDoubleClick={() => handleDoubleClick(dynamicMessage,`oldCode:${item.oldCode}`)}>
-                                {item.oldCode}
-                            </div>
-                            <div
-                                onMouseEnter={() => {
-                                setIsMouseOver(true)
-                                setDynamicMessage('sku was double clicked')
-                                }}
-                                onMouseLeave={() => setIsMouseOver(false)}
-                                onDoubleClick={() => handleDoubleClick(dynamicMessage,`sku:${item.sku}`)}>
-                                {item.sku}
-                            </div>
-                            <div>{item.Attribute1}</div>
-                            <div>{item.Value1}</div>
-                            <div>{item.Attribute2}</div>
-                            <div>{item.Value2}</div>
-                            <section id='sectionQty' div className="qty-container">
-                                <div className="qty-item">
-                                    <section>{item.qtyInStock}</section>
+                                    setDynamicMessage('oldCode was double clicked')}}
+                                    onMouseLeave={() => setIsMouseOver(false)}
+                                    onDoubleClick={() => handleDoubleClick(dynamicMessage,`oldCode:${item.oldCode}`)}>
+                                    {item.oldCode}
+                                </td>
+                            
+                                <td
+                                    onMouseEnter={() => {
+                                    setIsMouseOver(true)
+                                    setDynamicMessage('sku was double clicked')
+                                    }}
+                                    onMouseLeave={() => setIsMouseOver(false)}
+                                    onDoubleClick={() => handleDoubleClick(dynamicMessage,`sku:${item.sku}`)}>
+                                    {item.sku}
+                                </td>
+                                <td>{item.Attribute1}</td>
+                                <td>{item.Value1}</td>
+                                <td>{item.Attribute2}</td>
+                                <td>{item.Value2}</td>
+                                <td className="qty-item">{item.qtyInStock}
                                     {/*<div className={`tooltip ${index < 5 ? 'tooltip-below' : 'tooltip-above'}`}>*/}
                                     <div className="tooltip">
                                         <div>TOTAL: {item.qtyInStock}</div>
@@ -462,13 +462,13 @@ const Home = () => {
                                         <div>QC: {item.qtyQc}</div>
                                         <div>Shelf: {item.qtyStock}</div>
                                     </div>
-                                </div>
-                            </section>
-                        </div>
-                    ))} 
-                </div>
-            </div>
-            
+                                </td>
+                            </tr>
+                        ))} 
+                    </tbody>
+                </table>
+                </section>
+            </section>
             {imageExists && (
                 <div className="contentRight">
                     {/* Display the selected item JSON */}

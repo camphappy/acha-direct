@@ -15,11 +15,12 @@ if (!fs.existsSync(successDir)) {
   fs.mkdirSync(successDir);
 }
 
-// Function to get today's date in ddmmyy format
-function getFormattedDate(date) {
-  const day = String(date.getDate()).padStart(2, '0');
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const year = String(date.getFullYear()).slice(-2);
+// Helper function to convert Excel numeric date to `ddmmyy`
+function formatExcelDate(excelDate) {
+  const jsDate = new Date((excelDate - 25569) * 86400 * 1000); // Convert Excel date to JS date
+  const day = String(jsDate.getDate()).padStart(2, "0");
+  const month = String(jsDate.getMonth() + 1).padStart(2, "0"); // Months are zero-based in JS
+  const year = String(jsDate.getFullYear()).slice(-2);
   return `${day}${month}${year}`;
 }
 
@@ -64,6 +65,9 @@ fs.readdirSync(inputDir).forEach(file => {
     const invoiceNumber = worksheet['I9'] ? worksheet['I9'].v.toString() : '';
     const invoiceDate = worksheet['I13'] ? worksheet['I13'].v : '';
     const formattedDate = getFormattedDate(new Date(invoiceDate));
+    console.log(`Invoice: ${invoiceNumber}`);
+    console.log(`Date:    ${invoiceDate}`);
+    console.log(`Date:    ${formattedDate}`);
 
     // Clean the filename and create the new name
     const oldFileName = path.parse(file).name;
