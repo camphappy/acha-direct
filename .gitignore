@@ -11,6 +11,7 @@ backend/.env/
 backend/utility/MagentoImportJson/downloads/CustomerOrders
 backend/utility/MagentoImportJson/rawFetchedOrders
 backend/utility/MagentoImportJson/readyFetchedOrders
+backend/utility/ioFiles
 _test/
 frontend/build/
 backend/dist/

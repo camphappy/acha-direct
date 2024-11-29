@@ -1,0 +1,9 @@
+SKU Format
+
+K5  Invoice No.
+K9  Invoice Date
+K13 Date Ordered
+J16 Order No.
+J17 Rep:
+J18 CURRENCY:
+B8  SOLD TO:
